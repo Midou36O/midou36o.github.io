@@ -27,11 +27,11 @@ html {
 
 
 body {
-    background-color:rgb(30, 30, 30);
-    background-image: url("https://www.miicord.com/src/images/BG_FHD_darker.png");
+    background-color:rgb(0, 0, 0);
+    background-image: url("./images/BG_FHD_darker.png");
     background-repeat:no-repeat; 
     background-size: cover; 
-    
+    height: 100%;
     color: var(--brighter-purple-color);
     margin: 0px;
     font-family: 'Open Sans', sans-serif;
@@ -111,6 +111,7 @@ img {
 @media only screen and (max-width: 600px) {
     body {
         font-size: calc(9px + 1vmin);
+        background-image: url("./images/BG_FHD_darker_mb.png");
     }
     .pfp-holder {
         margin-top: -50%;
