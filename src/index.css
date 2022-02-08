@@ -31,7 +31,7 @@ body {
     background-image: url("https://www.miicord.com/src/images/BG_FHD.png");
     background-repeat:no-repeat; 
     background-size: cover; 
-   
+    
     color: var(--brighter-purple-color);
     margin: 0px;
     font-family: 'Open Sans', sans-serif;
