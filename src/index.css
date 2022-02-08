@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+@import url('https://fonts.googleapis.co/css2?family=Open+Sans&display=swap');
 
 :root {
     --purple-color: #7a00ec;
@@ -28,10 +28,10 @@ html {
 
 body {
     background-color:rgb(30, 30, 30);
-    background-image: url(https://github.com/Midou36O/midou36o.github.io/blob/main/src/images/BG_FHD.png?raw=true);
-    background-repeat:no-repeat;
-    background-size: cover;
-    background-position: center center;
+    background-image: url("https://www.miicord.com/src/images/BG_FHD.png");
+    background-repeat:no-repeat; 
+    background-size: cover; 
+   
     color: var(--brighter-purple-color);
     margin: 0px;
     font-family: 'Open Sans', sans-serif;
