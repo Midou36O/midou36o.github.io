@@ -28,6 +28,7 @@ html {
 
 body {
     background-color:rgb(30, 30, 30);
+    background-image: url(https://github.com/Midou36O/midou36o.github.io/blob/main/src/images/BG_FHD.png?raw=true);
     color: var(--brighter-purple-color);
     margin: 0px;
     font-family: 'Open Sans', sans-serif;
