@@ -29,13 +29,14 @@ html {
 body {
     background-color:rgb(30, 30, 30);
     background-image: url(https://github.com/Midou36O/midou36o.github.io/blob/main/src/images/BG_FHD.png?raw=true);
+    background-repeat:no-repeat;
+    background-size: cover;
+    background-position: center center;
     color: var(--brighter-purple-color);
     margin: 0px;
     font-family: 'Open Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-    background-repeat:no-repeat;
-    background-position: center center;
 }
 
 .sociallink {
