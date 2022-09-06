@@ -124,3 +124,22 @@ img {
         padding: 6px;
     }
 }
+
+.banner {
+  padding: 10px;
+  text-align: center;
+  background: #6e0000;
+  color: white;
+  font-size: 15px;
+  animation: fadeInOut linear 5s infinite;
+}
+
+.banner:hover {
+  animation: none;
+}
+
+@keyframes fadeInOut {
+  0% {opacity: 1;}
+  50% {opacity: 0;}
+  100% {opacity: 1;}
+}
