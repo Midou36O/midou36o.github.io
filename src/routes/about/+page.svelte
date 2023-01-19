@@ -3,9 +3,9 @@
 </script>
 
 
-<div class="bg">
-<div class="flex place-items-center">
-<div class="i-icon-park-outline-attention " style=" width: 60px; height: 60px;"></div>
-<h1 class="text-indigo-700 justify-center hover:text-indigo-800" style="">h</h1>
+<div class="bg-fixed " style="background-image: url($static/images/BG_FHD_darker_mb.png)">
+<div class="flex place-content-center place-items-center gap-3 rounded-2xl m-4 bg-slate-900">
+<div class="i-zondicons-information-solid text-stone-400 text-4xl" ></div>
+<h1 class="text-stone-400 justify-center hover:text-stone" style="">h</h1>
 </div>
 </div>
