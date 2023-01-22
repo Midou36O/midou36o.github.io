@@ -4,17 +4,8 @@ import UnoCSS from 'unocss/vite';
 import presetIcons from '@unocss/preset-icons';
 
 const config: UserConfig = {
-	plugins: [sveltekit(), UnoCSS(
-		{
-			shortcuts: {
-				// Shortcuts go here: Format: " class : "unocss" "
-				sm: "640px"
-			},
-			rules : [
-				['m-1', {margin : '0.25 em' }],
-			]
-		}
-	),
+	plugins: [sveltekit(), UnoCSS(),
+		/* Self note: Don't add a config between the (), it just overrides the external config. */
 	
 ]
 };

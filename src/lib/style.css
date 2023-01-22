@@ -12,6 +12,10 @@ html {
 	scroll-behavior: smooth;
 }
 
+
+
+
+
 #backdesk {
    height: 100%;
    object-fit: fill;
@@ -46,7 +50,6 @@ html {
 }
 
 body {
-	background-color: rgb(0, 0, 0);
 	background-repeat: no-repeat;
 	background-size: cover;
 	height: 100%;
@@ -108,17 +111,16 @@ body {
 }
 
 a {
-	color: var(--glowish-yellow);
 	text-decoration: none;
 }
 
-a:visited {
-	color: rgb(72, 115, 243);
-}
 
-a:hover {
-	color: crimson;
-}
+
+
+
+
+
+
 
 .middle-bottom {
 	height: 200px;

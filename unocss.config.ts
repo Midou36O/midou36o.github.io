@@ -23,6 +23,7 @@ export default defineConfig({
 		}),
 		presetWind({
 			dark: "class"
+			/* use dark: "class"  when adding manual JS*/
 		})
 	],
 
