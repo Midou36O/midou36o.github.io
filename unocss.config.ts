@@ -4,7 +4,8 @@ import {
 	presetTypography,
 	transformerVariantGroup,
 	transformerDirectives,
-	presetWind
+	presetWind,
+	presetWebFonts
 } from "unocss";
 
 import { extractorSvelte } from "unocss";
@@ -24,6 +25,14 @@ export default defineConfig({
 		presetWind({
 			dark: "class"
 			/* use dark: "class"  when adding manual JS*/
+		}),
+		presetWebFonts({
+			provider: 'bunny',
+			fonts: {
+				sans: 'Outfit',
+				mono: ['Fira Code'],
+
+			}	
 		})
 	],
 

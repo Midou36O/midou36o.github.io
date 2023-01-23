@@ -7,7 +7,7 @@
 <style>
 </style>   
 
-<main class="dark:bg-black bg-white">
+<main class="dark:bg-black bg-gray-300">
    <slot />
 </main>
 

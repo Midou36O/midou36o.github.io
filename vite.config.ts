@@ -2,6 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import type { UserConfig } from 'vite';
 import UnoCSS from 'unocss/vite';
 import presetIcons from '@unocss/preset-icons';
+import presetWebFonts from '@unocss/preset-web-fonts'
 
 const config: UserConfig = {
 	plugins: [sveltekit(), UnoCSS(),
