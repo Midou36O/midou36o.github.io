@@ -3,14 +3,14 @@
 	import Navi from '$lib/navi.svelte';
 </script>
     <Navi/>
-    <body class="dark:bg-black bg-gray-300 font-sans" id="content">
-        <div class="center">
-            <div class="justify-center flex items-center h-screen">
-                <div class="wrapper">
-                    <div class="text-black dark:text-white"><h1>{data.name}</h1></div>
-                    <div class="text-black dark:text-white"><p id="para" style="margin-top: -15px;">{@html data.description}</p></div>
+    <body class="dark:bg-black bg-gray-300 font-sans min-h-screen" id="content">
+        <div class="text-center">
+            <div class="justify-center flex items-center m-auto shrink overflow-hidden h-screen">
+                <div class="items-center justify-center">
+                    <div class="text-black dark:text-white text-4xl"><h1>{data.name}</h1></div>
+                    <div class="text-black dark:text-white my-3"><p id="" style="margin-top: -15px;">{@html data.description}</p></div>
                     <div>
-                    <hr class="text-black bg-black dark:bg-white dark:text-white" style="width:60%;text-align:center;"/>
+                    <hr class="text-black bg-black dark:bg-white dark:text-white text-center justify-center m-auto my-2" style="width:60%;text-align:center;"/>
                 </div>
                     <div class="justify-center flex flex-row items-center gap-3 text-3xl hover:text-yellow-500">
                     <div><a class="text-black dark:text-white i-carbon-logo-github" href="{data.github}{data.gh} " title="Midou's GitHub" >G</a></div>
