@@ -1,22 +1,24 @@
 <script>
     import data from '$lib/data.json';
-	import Navi from '$lib/navi.svelte';
+    import { fly } from 'svelte/transition';
+    import { quintOut } from 'svelte/easing';
 </script>
-    <Navi/>
-    <body class="dark:bg-black bg-gray-300 font-sans min-h-screen" id="content">
+    <body class="dark:bg-black bg-gray-300 text-black dark:text-white font-sans" id="content">
         <div class="text-center">
-            <div class="justify-center flex items-center m-auto shrink overflow-hidden h-screen">
+            <div class="justify-center flex items-center m-auto shrink overflow-hidden h-screen ">
                 <div class="items-center justify-center">
-                    <div class="text-black dark:text-white text-4xl"><h1>{data.name}</h1></div>
-                    <div class="text-black dark:text-white my-3"><p id="" style="margin-top: -15px;">{@html data.description}</p></div>
-                    <div>
-                    <hr class="text-black bg-black dark:bg-white dark:text-white text-center justify-center m-auto my-2" style="width:60%;text-align:center;"/>
-                </div>
-                    <div class="justify-center flex flex-row items-center gap-3 text-3xl hover:text-yellow-500">
-                    <div><a class="text-black dark:text-white i-carbon-logo-github" href="{data.github}{data.gh} " title="Midou's GitHub" >G</a></div>
-                    <div><a class="text-black dark:text-white i-simple-icons-matrix" href="{data.matrix}{data.mtx}"title="Midou's Matrix">M</a></div>
-                    <div><a class="text-black dark:text-white i-mdi-at" href="mailto:{data.mail}" title="Midou's E-Mail">M</a></div>
-                    <div><a class="text-black dark:text-white i-ph-currency-circle-dollar-bold text-4xl" href="{data.github}sponsors/{data.donate}" title="Donate to Midou.">D</a></div>
+                    <div in:fly={{ delay: 300, duration: 300, x: 50, easing: quintOut}} out:fly={{ duration: 400, x: -50, easing: quintOut}} >
+                    <div class="text-4xl"><h1>{data.name}</h1></div>
+                    <div class="my-3"><p id="" style="margin-top: -15px;">{@html data.description}</p></div>
+                    </div>
+                    <hr in:fly={{ delay: 300,  duration: 300, x: 0, easing: quintOut}} out:fly={{ duration: 400, x: 0, easing: quintOut}} class="border-black dark:border-white w-100%"/>
+                    <div in:fly={{ delay: 300, duration: 300, x: -50, easing: quintOut}} out:fly={{ duration: 400, x: 50, easing: quintOut}} >
+                    <div class="justify-center flex flex-row items-center gap-3 text-3xl hover:text-black hover:dark:text-white">
+                    <div><a class="i-carbon-logo-github" href="{data.github}{data.gh}" title="Midou's GitHub">G</a></div>
+                    <div><a class="i-simple-icons-matrix" href="{data.matrix}{data.mtx}" title="Midou's Matrix">M</a></div>
+                    <div><a class="i-mdi-at" href="mailto:{data.mail}" title="Midou's E-Mail">M</a></div>
+                    <div><a class="i-ph-currency-circle-dollar-bold text-4xl" href="/donate" title="Donate to Midou.">D</a></div>
+                    </div>
                     </div>
                     </div>
                 <br>

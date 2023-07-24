@@ -1,7 +1,4 @@
 <script>
-    import {blur} from 'svelte/transition';
-	import Navi from '$lib/navi.svelte';
-    import Time from "svelte-time";
     import dayjs from "dayjs";
     import relativeTime from "dayjs/plugin/relativeTime";
     // DayJS
@@ -12,9 +9,8 @@
 
 </script>
 
-<Navi/>
 <div class="min-h-screen">
-    <div class="flex place-content-center content-center place-items-center gap-3 rounded-2xl mx-7 md:mx-30 my-6 outline outline-offset-0 bg-blue-200 outline-blue-500 dark:outline-indigo-500 dark:bg-indigo-900/50">
+    <div class="mt-70px md:mt-100px flex place-content-center content-center place-items-center gap-3 rounded-2xl mx-7 md:mx-30 my-6 outline outline-offset-0 bg-blue-200 outline-blue-500 dark:outline-indigo-500 dark:bg-indigo-900/50">
         <div class="flex flex-row gap-2 my-4">
             <div class="i-zondicons-information-solid m-1 text-stone-700 dark:text-indigo-300 text-4xl"></div>
             <h1 class="text-stone-700 dark:text-indigo-400 text-4xl">About</h1>
@@ -26,7 +22,7 @@
             <h2 class="text-5xl text-black dark:text-white ">Who i am</h2>
         </div>
         </div>
-        <div class="text-xl pt-2 px-5 md:px-40 md:text-left text-black dark:text-white ">
+        <div class="text-xl pt-2 px-5 md:px-40 md:text-left mb-50px text-black dark:text-white ">
             <p>I'm a passionate programmer who has nothing to do with his life other than to just live in front of a computer and that's it. 
                 However i also have other passions and such. 
                 Well this is just temporary, don't really expect me to add something useful in it.

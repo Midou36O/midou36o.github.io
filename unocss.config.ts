@@ -29,7 +29,7 @@ export default defineConfig({
 		presetWebFonts({
 			provider: 'bunny',
 			fonts: {
-				sans: 'Outfit',
+				sans: ['Outfit', 'Comic Sans MS'],
 				mono: ['Fira Code'],
 
 			}	
