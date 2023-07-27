@@ -14,25 +14,25 @@
               <p class="text-black dark:text-white pb-5" style="">{@html data.description}</p>                                                                    
           </div>
         <hr transition:fly={{ duration: 300, x: 0, easing: quintOut}} class="border-black dark:border-white w-100%"/>
-          <div in:fly={{ delay: 300, duration: 300, x: -50, easing: quintOut}} out:fly={{ duration: 300, x: 50, easing: quintOut}} class="flex md:flex-col flex-row px-3 md:px-0" >
+          <div in:fly={{ delay: 300, duration: 300, x: -50, easing: quintOut}} out:fly={{ duration: 300, x: 50, easing: quintOut}} class="flex md:flex-col float-right flex-row px-3 text-right md:px-0" >
               <a href="{data.github}{data.gh}">
                 <div class="flex flex-row py-1">
-                  <div class="i-carbon-logo-github text-black dark:text-white px-2 md:px-0 text-3xl"></div><p class="text-1xl md:block hidden dark:text-white text-black md:pl-2">GitHub</p>
+                  <p class="text-2xl md:block hidden dark:text-white text-black md:pr-2">GitHub</p><div class="i-carbon-logo-github text-black dark:text-white px-2 md:px-0 text-3xl"></div>
                 </div>
               </a>
               <a href="{data.matrix}{data.mtx}">
                 <div class="flex flex-row py-1">
-                  <div class="i-tabler-brand-matrix md:pl-3 text-black dark:text-white px-2 md:px-0 text-3xl"></div><p class="text-1xl md:block hidden dark:text-white text-black md:pl-2">Matrix</p>
+                  <p class="text-2xl md:block hidden dark:text-white text-black md:pr-2">Matrix</p><div class="i-tabler-brand-matrix md:pl-3 text-black dark:text-white px-2 md:px-0 text-3xl"></div>
                 </div>
               </a>
               <a href="mailto:{data.mail}">
                 <div class="flex flex-row py-1">
-                  <div class="i-mdi-at md:pl-3 text-black dark:text-white px-2 md:px-0 text-3xl"></div><p class="text-1xl md:block hidden text-black dark:text-white md:pl-2">Mail</p>
+                  <p class="text-2xl md:block hidden text-black dark:text-white md:pl-2">Mail</p> <div class="i-mdi-at md:pl-3 text-black dark:text-white px-2 md:px-0 text-3xl"></div>
                 </div>
               </a>
               <a href="/donate">
                 <div class="flex flex-row py-1">
-                  <div class="i-ph-currency-circle-dollar-bold md:pl-3 text-black px-2 md:px-0 dark:text-white text-3xl"></div><p class="text-1xl md:block hidden text-black dark:text-white md:pl-2">Donate</p>
+                  <p class="text-2xl md:block hidden text-black dark:text-white md:pl-2">Donate</p><div class="i-ph-currency-circle-dollar-bold md:pl-3 text-black px-2 md:px-0 dark:text-white text-3xl"></div>
                 </div>
               </a>
           </div>

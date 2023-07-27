@@ -1,18 +1,26 @@
 [
-{
-    "name" : "Project Segfault",
-    "date" : "Sometime in 2022",
-    "desc" : "Open source development and hosted services.",
-    "url" : "https://projectsegfau.lt",
-    "image" : "https://github.com/ProjectSegfault/Logo/raw/main/png/logo_semi_transparent.png",
-    "imdes" : ""
-},
-{
-    "name" : "Mario Kart Wii 3DS",
-    "date" : "Sometime in 2018",
-    "desc" : "A mod that aims to port mario kart wii tracks and functions to mario kart 3DS.",
-    "url" : "https://github.com/orgs/MKW3DS/repositories",
-    "image" : "https://github.com/Midou36O/MKW3DS-Launcher/raw/master/BootNTR/romfs/sprites/topBackground.png",
-    "imdes" : ""
-}
+	{
+		"name": "Project Segfault",
+		"date": "Sometime in 2022",
+		"desc": "Open source development and hosted services.",
+		"url": "https://projectsegfau.lt",
+		"image": "https://github.com/ProjectSegfault/Logo/raw/main/png/logo_semi_transparent.png",
+		"imdes": ""
+	},
+	{
+		"name": "Mario Kart Wii 3DS",
+		"date": "Sometime in 2018",
+		"desc": "A mod that aims to port mario kart wii tracks and functions to mario kart 3DS.",
+		"url": "https://github.com/orgs/MKW3DS/repositories",
+		"image": "https://github.com/Midou36O/MKW3DS-Launcher/raw/master/BootNTR/romfs/sprites/topBackground.png",
+		"imdes": ""
+	},
+	{
+		"name": "Candengine",
+		"date": "2023",
+		"desc": "A game engine written in C++ and OpenGL.",
+		"url": "https://github.com/Midou36O/SDL_Gravity_Box",
+		"image": "https://github.com/Midou36O/SDL_Gravity_Box/blob/testing-learning/resources/Candengine.png?raw=true",
+		"imdes": ""
+	}
 ]
