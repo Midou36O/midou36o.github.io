@@ -23,7 +23,7 @@ export default defineConfig({
 			}
 		}),
 		presetWind({
-			/* dark: "class" */
+			dark: 'media'
 			/* use dark: "class"  when adding manual JS*/
 		}),
 		presetWebFonts({
