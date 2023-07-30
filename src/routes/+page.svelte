@@ -8,7 +8,7 @@
 <div class="justify-center flex md:flex-row flex-col items-center m-auto shrink overflow-hidden h-25% md:h-screen">
     <!-- Primary content (left) --> 
     <div in:fly={{ delay: 300, duration: 300, y: 50, easing: quintOut}} out:fly={{ delay: 100, duration: 200, y: 0, easing: quintOut}} class="text-center">                                                                                                                  
-      <div class="text-right justify-center flex flex-col items-center m-auto shrink overflow-hidden md:pb-0 md:pt-0 pb-10% pt-110% h-1/2 md:h-screen">                                          
+      <div class="md:text-right justify-center flex flex-col items-center m-auto shrink overflow-hidden md:pb-0 md:pt-0 pb-10% pt-110% h-1/2 md:h-screen">                                          
           <div in:fly={{ delay: 300, duration: 300, x: 50, easing: quintOut}} animate=true out:fly={{ duration: 300, x: -50, easing: quintOut}} >  
               <h1 class="text-black dark:text-white text-4xl">{data.name}</h1>
               <p class="text-black dark:text-white pb-5" style="">{@html data.description}</p>                                                                    
