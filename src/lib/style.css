@@ -10,29 +10,26 @@ html {
 	scroll-behavior: smooth;
 }
 
-
-
-
-
 #backdesk {
-   height: 100%;
-   object-fit: fill;
-   overflow: hidden;  
-   animation: rainbow 20s steps(120) infinite;
+	height: 100%;
+	object-fit: fill;
+	overflow: hidden;
+	animation: rainbow 20s steps(120) infinite;
 }
 #backmob {
-    display:none;
+	display: none;
 }
 
 @keyframes rainbow {
-        from { filter:hue-rotate(10deg); }
-          to { filter:hue-rotate(360deg); }
-        }
-
+	from {
+		filter: hue-rotate(10deg);
+	}
+	to {
+		filter: hue-rotate(360deg);
+	}
+}
 
 .bio-and-projects {
-	text-align: center;
-	position: fixed;
 	left: 5px;
 	width: 100%;
 }
@@ -43,7 +40,7 @@ html {
 }
 
 .bg {
-    background-image: url(/Images/BG_FHD_darker_mb.png);
+	background-image: url(/Images/BG_FHD_darker_mb.png);
 }
 
 body {
@@ -93,7 +90,6 @@ body {
 	width: 125px;
 }
 
-
 .middle {
 	text-align: center;
 	top: 50%;
@@ -103,14 +99,6 @@ body {
 a {
 	text-decoration: none;
 }
-
-
-
-
-
-
-
-
 
 .middle-bottom {
 	height: 200px;
@@ -130,9 +118,6 @@ img {
 	/* <center> tag is no longer needed and is considered useless/going to be deprecated???? so im just gonna center using css and div */
 	text-align: center;
 }
-
-
-
 
 @media (prefers-color-scheme: dark) {
 	html {
