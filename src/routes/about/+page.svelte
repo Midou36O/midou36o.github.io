@@ -6,7 +6,6 @@
     let yr = dayjs('2004-07-15').fromNow(true);
     import { fly } from 'svelte/transition';  
     import { quintOut } from 'svelte/easing'; 
-                                            
 </script>
 
 <body class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans md:px-10%" id="content"> 
@@ -14,8 +13,6 @@
       <!-- Primary content (Left) -->
          <div class="text-center">
           <div
-            
-            
           class="justify-center flex md:flex-row flex-col items-center m-auto shrink overflow-hidden h-screen ">
           <div
          in:fly={{ delay: 300, duration: 300, y: 50, easing: quintOut}}  
@@ -23,7 +20,7 @@
           class="flex flex-col">
           <div class="flex flex-col md:flex-row">
              <div 
-              class="i-gridicons-info place-content-center place-self-center justify-center content-center text-center pl-0 md:pl-3 text-black text-5xl"
+              class="i-gridicons-info dark:text-white place-content-center place-self-center justify-center content-center text-center pl-0 md:pl-3 text-black text-5xl"
               ></div>
              <h1 
               class="text-black dark:text-white text-4xl md:pr-2"
@@ -32,7 +29,7 @@
                <p class="md:hidden block text-gray-500 py-1"> I fucking hate css </p>
                <a href="/">
                <div class="flex place-content-center place-self-center justify-center content-center flex-row md:pl-25%">
-               <div class="i-ep-back text-4xl md:text-2xl mr-0 md:mr-1"></div>
+               <div class="i-ep-back text-4xl md:text-2xl my-auto mr-0 md:mr-1"></div>
                <p class="md:block hidden"> Go back? </p>
                </div>
                </a>
@@ -60,7 +57,7 @@
                        </p>
                    </div>
                </div>
-         </div>
+             </div>
         </div> 
     </div>
 </body>
