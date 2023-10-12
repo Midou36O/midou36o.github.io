@@ -46,14 +46,14 @@
                 out:fly={{ duration: 300, y: 50, easing: quintOut}}               
                class="justify-center w-85% md:w-50% h-100% flex flex-col items-center md:m-5 shrink overflow-hidden h-screen "> 
                    <div class="text-xl text-center overflow-scroll md:text-left text-black dark:text-white ">
-                       <p>I'm a passionate programmer who has nothing to do with his life other than to just live in front of a computer and that's it. 
-                           However i also have other passions and such. 
-                           Well this is just temporary, don't really expect me to add something useful in it.
-                           You can call me Midou. Anyway I live in Morocco, I'm {yr} old.
-                           There are a tons of things i've done but you never know what's the point of doing all of this.
-                           Hey are you listening? This is serious. No i really mean it's actually serious.
-                           I'm trying to extend this enough to see if it works or not, because for some reason HTML loves stopping at a point without styling the BG.
-                           Anyway how's it going? Lore ipsum bullshit yadda yadda yadda. Did you know that project + is actually nice? No? Too bad.
+                       <p>I'm a passionate programmer who has nothing to do with his life other than to just live in front of a computer and that's it.<br/> 
+                           However i also have other passions and such.<br/> 
+                           Well this is just temporary, don't really expect me to add something useful in it.<br/>
+                           You can call me Midou. Anyway I live in Morocco, I'm {yr} old.<br/>
+                           There are a tons of things i've done but you never know what's the point of doing all of this.<br/>
+                           Hey are you listening? This is serious. No i really mean it's actually serious.<br/>
+                           I'm trying to extend this enough to see if it works or not, because for some reason HTML loves stopping at a point without styling the BG.<br/>
+                           Anyway how's it going? Lore ipsum bullshit yadda yadda yadda. Did you know that project + is actually nice? No? Too bad.<br/>
                        </p>
                    </div>
                </div>

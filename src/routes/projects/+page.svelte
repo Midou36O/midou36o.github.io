@@ -16,7 +16,7 @@
           class="flex flex-col">
           <div class="flex flex-col md:flex-row">
              <div 
-              class="i-octicon-project-16 place-content-center place-self-center justify-center content-center text-center pl-0 md:pl-3 text-black text-5xl"
+              class="i-octicon-project-16 dark:text-white place-content-center place-self-center justify-center content-center text-center pl-0 md:pl-3 text-black text-5xl"
               ></div>
              <h1 
               class="text-black dark:text-white text-4xl md:pl-2 md:pr-2"
