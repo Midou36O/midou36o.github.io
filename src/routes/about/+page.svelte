@@ -46,14 +46,16 @@
                 out:fly={{ duration: 300, y: 50, easing: quintOut}}               
                class="justify-center w-85% md:w-50% h-100% flex flex-col items-center md:m-5 shrink overflow-hidden h-screen "> 
                    <div class="text-xl text-center overflow-scroll md:text-left text-black dark:text-white ">
-                       <p>I'm a passionate programmer who has nothing to do with his life other than to just live in front of a computer and that's it.<br/> 
-                           However i also have other passions and such.<br/> 
-                           Well this is just temporary, don't really expect me to add something useful in it.<br/>
-                           You can call me Midou. Anyway I live in Morocco, I'm {yr} old.<br/>
-                           There are a tons of things i've done but you never know what's the point of doing all of this.<br/>
-                           Hey are you listening? This is serious. No i really mean it's actually serious.<br/>
-                           I'm trying to extend this enough to see if it works or not, because for some reason HTML loves stopping at a point without styling the BG.<br/>
-                           Anyway how's it going? Lore ipsum bullshit yadda yadda yadda. Did you know that project + is actually nice? No? Too bad.<br/>
+                       <p>I'm a passionate programmer who quite literally is interested in the inner workings of anything related to computers.<br/> 
+                       Such as what? Well it's pretty much anything that revolves around computers, from the hardware to the software.<br/>
+                       Some examples are: decompiling, reverse engineering, programming, experimenting, and so on.<br/>
+                       It's mostly something I love to do in my spare time, and I'm always looking for new things to learn.<br/>
+                       I do hate JS though, but svelte is making it bearable.<br/>
+                       This is just a brief summary of who I am, And I hope you enjoy your (rather short) stay on my website.<br/>
+                       Oh, just in case, I'm a guy, and I'm {yr} old. You don't need to know more than that.<br/>
+                       Finally, feel free to contact me! I love receiving mails and messages from people, and I'll try to respond as soon as possible.<br/>
+                       If it's a question or a request, I'll see if can also publicly document it so that others can benefit from it as well.<br/>
+                       Until then, have a nice day!
                        </p>
                    </div>
                </div>

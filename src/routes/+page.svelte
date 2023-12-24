@@ -56,10 +56,10 @@
                  class="flex flex-row rounded md:p-1 md:dark:hover:bg-white md:dark:hover:text-black md:hover:bg-gray-400"> 
                 <a href="/projects" data-sveltekit-preload-code><div class="flex flex-row"><div class="i-octicon-project-16 text-5xl md:text-4xl my-auto"/><h2 class="md:pl-2 text-4xl hidden md:block">Projects</h2></div></a> 
             </div>
-            <div in:fly={{ delay: 400, duration: 300, x: -20, easing: quintOut}}
-                out:fly={{ delay: 150, duration: 150, y: 0, easing: quintOut}}
-                 class="flex flex-row rounded md:p-1 md:dark:hover:bg-white md:dark:hover:text-black md:hover:bg-gray-400"> 
-                <a href="/blog"><div class="flex flex-row"><div class="i-ph-book-bold text-5xl md:text-4xl my-auto"/><h2 class="md:pl-2 text-4xl hidden md:block">Blog</h2></div></a>
-            </div>
+           <!-- <div in:fly={{ delay: 400, duration: 300, x: -20, easing: quintOut}} -->
+           <!--     out:fly={{ delay: 150, duration: 150, y: 0, easing: quintOut}} -->
+           <!--      class="flex flex-row rounded md:p-1"> -->
+           <!--     <a href="/blog"><div class="flex flex-row"><div class="i-ph-book-bold bg-gray-400 dark:bg-gray-600 text-5xl md:text-4xl my-auto"/><h2 class="md:pl-2 text-4xl text-gray-400 dark:text-gray-600 hidden md:block">Blog</h2></div></a> -->
+           <!-- </div> -->
         </div>
 </body>                                                                                                                                      
