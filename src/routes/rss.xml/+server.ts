@@ -12,7 +12,7 @@ export async function GET({ fetch }) {
 				<title>Midou's blog</title>
 				<description>A blog covering about anything that comes into my mind!</description>
 				<link>https://midou.dev/</link>
-				<atom:link href="https://midou.dev/blog/rss.xml" rel="self" type="application/rss+xml"/>
+				<atom:link href="https://midou.dev/rss.xml" rel="self" type="application/rss+xml"/>
 				${posts
 					.map(
 						(post) => `
@@ -21,7 +21,6 @@ export async function GET({ fetch }) {
 							<description>${post.description}</description>
 							<link>https://midou.dev/blog/${post.slug}</link>
 							<guid isPermaLink="true">https://midou.dev/blog/${post.slug}</guid>
-							<p> Since I am a dumbass, I don't know how to put the paragraph here! </p>
 							<pubDate>${new Date(post.date).toUTCString()}</pubDate>
 						</item>
 					`

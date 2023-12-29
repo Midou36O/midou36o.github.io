@@ -13,6 +13,12 @@ const config: UserConfig = {
 	],
 	optimizeDeps: {
 		include: ['dayjs/plugin/relativeTime.js']
+	},
+	server: {
+		port: 3000
+	},
+	preview: {
+		port: 3020
 	}
 };
 

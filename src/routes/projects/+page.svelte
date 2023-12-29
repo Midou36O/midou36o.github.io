@@ -38,8 +38,12 @@
 					out:fly={{ duration: 300, y: 0, easing: quintOut }}
 					class="md:h-1/2 md:w-1 w-3/4 border-1 bg-black border-black dark:bg-white dark:border-white rounded-md"
 				/>
-
-				<div class="md:pl-4 md:gap-1 flex md:h-50% flex-col place-items-start">
+				<!-- Secondary Content (Right) -->
+				<div
+					in:fly={{ delay: 300, duration: 300, y: -50, easing: quintOut }}
+					out:fly={{ duration: 300, y: 50, easing: quintOut }}
+					class="md:pl-4 md:gap-1 flex md:h-50% flex-col place-items-start"
+				>
 					<div class="overflow-y-auto">
 						{#each proj as { name, date, desc, url, image, imdes }, i}
 							<a href={url}>

@@ -19,8 +19,8 @@
 				class="justify-center flex md:flex-row flex-col items-center m-auto shrink overflow-hidden h-screen"
 			>
 				<div
-					in:fly={{ delay: 300, duration: 300, y: 50, easing: quintOut }}
-					out:fly={{ duration: 300, y: -50, easing: quintOut }}
+					in:fly={{ delay: 350, duration: 350, y: 50, easing: quintOut }}
+					out:fly={{ duration: 350, y: -50, easing: quintOut }}
 					class="flex flex-col md:pr-3"
 				>
 					<div class="flex flex-col md:flex-row">
@@ -45,14 +45,18 @@
 					out:fly={{ duration: 300, y: 0, easing: quintOut }}
 					class="md:h-1/2 md:w-1 w-3/4 border-1 bg-black border-black dark:bg-white dark:border-white rounded-md"
 				/>
-
-				<div class="md:pl-4 md:gap-1 flex md:h-50% flex-col place-items-start">
+				<!-- Secondary Content (Right) -->
+				<div
+					in:fly={{ delay: 300, duration: 300, y: -50, easing: quintOut }}
+					out:fly={{ duration: 300, y: 50, easing: quintOut }}
+					class="md:pl-4 md:gap-1 flex md:h-50% flex-col place-items-start"
+				>
 					<div class="overflow-y-auto">
 						{#each data.posts as { title, date, description, slug }, i}
 							<a href="blog/{slug}">
 								<!-- Gotta fix this, it's gonna look ugly when there are too many projects in the list... -->
 								<div
-									in:fly={{ delay: 350, duration: 300 * i, y: -50, easing: quintOut }}
+									in:fly={{ delay: 300, duration: 300 * i, y: -50, easing: quintOut }}
 									out:fly={{ duration: 300, y: 50, easing: quintOut }}
 									class="flex flex-col p-2 rounded dark:hover:bg-#082f49 hover:bg-blue-100"
 								>

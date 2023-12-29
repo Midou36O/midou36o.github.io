@@ -8,10 +8,10 @@ import {
 	presetWebFonts
 } from 'unocss';
 
-import { extractorSvelte } from 'unocss';
+import extractorSvelte from '@unocss/extractor-svelte';
 
 export default defineConfig({
-	extractors: [extractorSvelte],
+	extractors: [extractorSvelte()],
 
 	presets: [
 		presetIcons(),
