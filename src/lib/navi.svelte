@@ -1,5 +1,4 @@
 <script lang="ts">
-    import ThemeToggle from '$lib/ThemeToggle.svelte';
     import { fade, fly, slide } from 'svelte/transition';
 
 
@@ -34,7 +33,6 @@
             </div>
         </div>
         <div class="flex-1 justify-center content-center float-right mr-6 my-4 h-7 w-7 md:my-5">
-        <ThemeToggle/> 
         </div>
     </div>
 </div>
