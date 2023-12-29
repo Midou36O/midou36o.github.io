@@ -7,7 +7,7 @@
 	<slot />
 </div>
 
-<style lang="scss">
+<style>
 	/* I HATE OVERWRITING STYLES  I HATE OVERWRITING STYLES */
 	.blog :global(h1) {
 		@apply text-5xl font-bold;
