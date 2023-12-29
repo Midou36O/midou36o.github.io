@@ -32,15 +32,13 @@
 						/>
 						<h1 class="text-black dark:text-white font-bold text-4xl md:px-2">{data.meta.title}</h1>
 					</div>
-					<!-- dirty hack to give the illusion the text is properly visible on both light and dark mode -->
-					<p class="block text-gray-800 md:text-gray-500 p-3 py-1">
+					<p class="block text-gray-600 dark:text-gray-500 p-3 py-1">
 						Tags:
 						{#each data.meta.categories as category}
 							<span class="surface-4"> &num;{category} </span>
 						{/each}
 					</p>
-					<!-- dirty hack to give the illusion the text is properly visible on both light and dark mode -->
-					<p class="block text-gray-800 md:text-gray-500 p-3 py-1">
+					<p class="block text-gray-600 dark:text-gray-500 p-3 py-1">
 						{convertDate(data.meta.date)}
 					</p>
 					<a href="/blog" data-sveltekit-preload-code>
