@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Install Docker
         run: curl -fsSL https://get.docker.com | sh
-      - name: Setup QEMU
+      - name: Set up QEMU
         uses: https://github.com/docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -26,7 +26,9 @@ jobs:
       - name: 'Build:dockerimage'
         uses: https://github.com/docker/build-push-action@v3
         with:
-          tags: git.projectsegfau.lt/midou/midou36o.github.io:latest
+          tags: midou/midou36o.github.io:latest
           context: '.'
           push: true
           no-cache: true
+          secrets:
+            - GIT_AUTH_TOKEN=${{ secrets.ACCESS_TOKEN }}
