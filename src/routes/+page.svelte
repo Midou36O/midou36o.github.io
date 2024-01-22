@@ -4,7 +4,7 @@
 	import { quintOut } from 'svelte/easing';
 </script>
 
-<body class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans" id="content">
+<div class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans" id="content">
 	<div
 		class="justify-center flex md:flex-row flex-col items-center m-auto shrink overflow-hidden h-25% md:h-screen"
 	>
@@ -116,5 +116,5 @@
 				>
 			</div>
 		</div>
-	</div></body
->
+	</div>
+</div>
