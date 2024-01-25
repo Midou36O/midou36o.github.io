@@ -36,6 +36,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@sveltejs/vite-plugin-svelte": "^3.0.1",
 		"@unocss/reset": "^0.58.3",
 		"dayjs": "^1.11.10",
 		"eslint-plugin-svelte": "^2.35.1",
