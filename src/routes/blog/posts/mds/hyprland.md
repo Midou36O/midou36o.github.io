@@ -20,7 +20,7 @@ to work on Hyprland.
 so you might want to actually be a little bit careful as it could crash or have breaking changes at some point. But it's recently stabilized a bit so there is little to no crashes
 if you don't do anything _stupid_
 
-![Image of an Hyprland ricing taken from the github repo.](https://camo.githubusercontent.com/b40ca85d8d3b15b50b35e55806149a8591e387ebf977d989ddc98f18cc79fdbf/68747470733a2f2f63646e2e646973636f72646170702e636f6d2f6174746163686d656e74732f313039313536393837323533353831343138352f313130373637353836363130313732333237372f73637265656e73686f742d73756d6d65722e706e67)
+[![Image of an Hyprland ricing taken from the github repo.](https://camo.githubusercontent.com/b40ca85d8d3b15b50b35e55806149a8591e387ebf977d989ddc98f18cc79fdbf/68747470733a2f2f63646e2e646973636f72646170702e636f6d2f6174746163686d656e74732f313039313536393837323533353831343138352f313130373637353836363130313732333237372f73637265656e73686f742d73756d6d65722e706e67)](https://camo.githubusercontent.com/b40ca85d8d3b15b50b35e55806149a8591e387ebf977d989ddc98f18cc79fdbf/68747470733a2f2f63646e2e646973636f72646170702e636f6d2f6174746163686d656e74732f313039313536393837323533353831343138352f313130373637353836363130313732333237372f73637265656e73686f742d73756d6d65722e706e67)
 
 ## And sway?
 
@@ -38,7 +38,7 @@ sudo pacman -S hyprland -y
 ```
 
 And now, time to open it from the terminal!
-![First experience](/blog/images/hyprland/firstexperience.png)
+[![First experience](/blog/images/hyprland/firstexperience.png)](https://midou.dev/blog/images/hyprland/firstexperience.png)
 ...Great. Some anime weaboo made this thing.
 
 So what would be the first thing that anyone should do?
@@ -230,6 +230,6 @@ Congratulations, you now know how to (roughly) setup hyprland!
 Now what?
 Well you can start ricing your TWM like a madman in [r/unixporn](https://lr.psf.lt/r/unixporn) or snatch the dotfiles and adapt it to your liking. But i'm not that type of guy, my desktop is simple.
 
-![My desktop](/blog/images/hyprland/desktop.png)
+[![My desktop](/blog/images/hyprland/desktop.png)](https://midou.dev/blog/images/hyprland/desktop.png)
 
 Have fun, and see you later!

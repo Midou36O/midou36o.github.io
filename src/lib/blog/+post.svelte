@@ -3,7 +3,9 @@
 	export { Components };
 </script>
 
-<div class="blog mt-8 leading-loose text-lg text-gray-700 dark:text-gray-300">
+<div
+	class="blog pl-50 w-70% md:pl-30 md:w-80% lg:pl-0 lg:w-100% beak-normal mt-8 leading-loose text-lg text-gray-700 dark:text-gray-300"
+>
 	<slot />
 </div>
 
@@ -78,7 +80,7 @@
 		background-color: #282a36;
 	}
 	.blog :global(code) {
-		@apply rounded-1 p-2;
+		@apply rounded-1 'md:p-2' p-0 text-left;
 	}
 	.blog :global(kbd) {
 		@apply rounded-1 p-2;
@@ -87,7 +89,7 @@
 		@apply rounded-1 p-2;
 	}
 	.blog :global(pre) {
-		@apply rounded-1 p-2;
+		@apply rounded-1 'md:p-2' text-left p-0 'w-100%' overflow-x-auto;
 	}
 	.blog :global(.prose) {
 		@apply prose;
