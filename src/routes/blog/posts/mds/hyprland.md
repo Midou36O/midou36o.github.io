@@ -20,7 +20,7 @@ to work on Hyprland.
 so you might want to actually be a little bit careful as it could crash or have breaking changes at some point. But it's recently stabilized a bit so there is little to no crashes
 if you don't do anything _stupid_
 
-[![Image of an Hyprland ricing taken from the github repo.](https://midou.dev/blog/images/hyprland/preview.png)
+[![Image of an Hyprland ricing taken from the github repo.](/blog/images/hyprland/preview.png)](https://midou.dev/blog/images/hyprland/preview.png)
 
 ## And sway?
 
