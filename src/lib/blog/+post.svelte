@@ -4,7 +4,7 @@
 </script>
 
 <div
-	class="blog pl-50 w-70% md:pl-30 md:w-80% lg:pl-0 lg:w-100% beak-normal mt-8 leading-loose text-lg text-gray-700 dark:text-gray-300"
+	class="blog mx-auto w-70% md:pl-30 md:w-80% lg:pl-0 lg:w-100% beak-normal mt-8 leading-loose text-lg text-gray-700 dark:text-gray-300"
 >
 	<slot />
 </div>
