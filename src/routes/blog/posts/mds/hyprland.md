@@ -34,7 +34,7 @@ Now I'm going to tell you my first time experience with Hyprland.
 Installing it on arch is as simple as
 
 ```bash
-sudo pacman -S hyprland -y
+sudo pacman -S hyprland --noconfirm
 ```
 
 And now, time to open it from the terminal!
@@ -84,7 +84,7 @@ It supports grouped apps with tabs. Well, the usual i3 stuff we're used to, feel
 On arch installing hy3 is as easy as
 
 ```bash
-sudo pacman -S hy3 -y
+sudo pacman -S hy3 --noconfirm
 ```
 
 And adding the proper line in the config file of hyprland.
@@ -162,7 +162,7 @@ Waybar is a good status bar, similar to polybar on X11, you can customize it usi
 To install Waybar you can just run
 
 ```bash
-sudo pacman -S waybar -y
+sudo pacman -S waybar --noconfirm
 ```
 
 But the -git version is recommended in some cases.
@@ -211,8 +211,6 @@ You can add this to the config and edit it to your liking.
 
 ```
 preload = /path/to/imge.png
-preload = /path/to/another/image.png
-preload = /even/more/images.png
 
 wallpaper = ,/path/to/image.png
 
