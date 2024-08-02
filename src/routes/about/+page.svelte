@@ -8,7 +8,7 @@
 	import { quintOut } from 'svelte/easing';
 </script>
 
-<body class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans md:px-10%" id="content">
+<body class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans md:py-0 py-10% md:px-10%" id="content">
 	<div class="min-h-screen">
 		<!-- Primary content (Left) -->
 		<div class="text-center">
