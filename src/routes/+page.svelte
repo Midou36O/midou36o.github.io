@@ -4,7 +4,10 @@
 	import { quintOut } from 'svelte/easing';
 </script>
 
-<div class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans min-h-screen" id="content">
+<div
+	class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans min-h-screen"
+	id="content"
+>
 	<div
 		class="justify-center flex md:flex-row flex-col items-center m-auto shrink overflow-hidden h-25% md:h-screen"
 	>
@@ -40,14 +43,6 @@
 						>
 							<p class="text-2xl md:block hidden md:pr-2">GitHub</p>
 							<div class="i-carbon-logo-github px-2 md:px-0 my-auto text-3xl" />
-						</div>
-					</a>
-					<a href="{data.matrix}{data.mtx}">
-						<div
-							class="flex flex-row p-1 md:dark:hover:bg-white md:dark:hover:text-black md:hover:bg-gray-400 rounded"
-						>
-							<p class="text-2xl md:block hidden md:pr-2">Matrix</p>
-							<div class="i-tabler-brand-matrix md:pl-3 px-2 my-auto md:px-0 text-3xl" />
 						</div>
 					</a>
 					<a href="mailto:{data.mail}">
