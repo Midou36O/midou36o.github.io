@@ -19,8 +19,8 @@
 		"name": "Candengine",
 		"date": "2023",
 		"desc": "A game engine written in C++ and OpenGL + Vulkan. (Learning project)",
-		"url": "https://github.com/Midou36O/SDL_Gravity_Box",
-		"image": "https://github.com/Midou36O/SDL_Gravity_Box/blob/testing-learning/resources/Candengine.png?raw=true",
-		"imdes": "Picture of Candengine. A gear can be seen in the back, with a cream candy cookie on top of it."
+		"url": "/projects",
+		"image": "",
+		"imdes": "No image"
 	}
 ]
