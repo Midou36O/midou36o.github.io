@@ -66,11 +66,13 @@
 												class="md:h-10% h-100% md:w-50 w-50 object-cover rounded backdrop-opacity-10 md:object-contain float-right z-10 overflow-hidden md:block hidden"
 												style="mask-image: linear-gradient(to left, rgba(0, 0, 0, 1.0) 50%, transparent 100%);"
 											>
-												<img
-													class="transition duration-600 top-0 opacity-50 scale-110 hover:opacity-75 object-cover md:object-contain hover:scale-120"
-													src={image}
-													alt={imdes}
-												/>
+												{#if imdes != 'No image'}
+													<img
+														class="transition duration-600 top-0 opacity-50 scale-110 hover:opacity-75 object-cover md:object-contain hover:scale-120"
+														src={image}
+														alt={imdes}
+													/>
+												{/if}
 											</div>
 										</div>
 									</div>
