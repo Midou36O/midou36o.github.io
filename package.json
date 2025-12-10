@@ -24,6 +24,7 @@
 		"@unocss/preset-web-fonts": "^0.58.9",
 		"eslint": "^9.39.1",
 		"eslint-config-prettier": "^9.1.2",
+		"local": "link:@unocss/preset-web-fonts/local",
 		"prettier": "^3.7.4",
 		"prettier-plugin-svelte": "^3.4.0",
 		"svelte": "^4.2.20",

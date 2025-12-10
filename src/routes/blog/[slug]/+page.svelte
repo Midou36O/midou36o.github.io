@@ -24,7 +24,7 @@
 				<div
 					in:fly={{ delay: 300, duration: 300, y: 50, easing: quintOut }}
 					out:fly={{ duration: 300, y: -50, easing: quintOut }}
-					class="flex flex-col pr-3"
+					class="flex flex-col pr-3 md:w-60"
 				>
 					<div class="flex flex-col md:flex-col">
 						<div

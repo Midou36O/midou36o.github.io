@@ -51,7 +51,7 @@
 								<div
 									in:fly={{ delay: 350, duration: 300 * i, y: -50, easing: quintOut }}
 									out:fly={{ duration: 300, y: 50, easing: quintOut }}
-									class="flex flex-col p-2 rounded dark:hover:bg-#082f49 hover:bg-blue-100"
+									class="flex flex-col p-2 rounded dark:hover:bg-indigo-900 hover:bg-blue-100"
 								>
 									<div class="my-auto">
 										<div class="flex flex-row place-content-between">

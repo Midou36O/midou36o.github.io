@@ -54,8 +54,7 @@
 		@apply ml-4;
 	}
 	.blog :global(blockquote) {
-		@apply border-gray-600 pl-4;
-		@apply border-l-4 'dark:border-gray-300';
+		@apply border-purple-700 pl-4 border-l-4;
 	}
 	.blog :global(pre) {
 		@apply overflow-x-auto;
@@ -100,9 +99,5 @@
 	.blog {
 		-ms-overflow-style: none; /* IE and Edge */
 		scrollbar-width: none; /* Firefox */
-	}
-	/* Force dark mode as it is ignored. */
-	:global(.dark, blockquote.dark) {
-		@apply dark;
 	}
 </style>
