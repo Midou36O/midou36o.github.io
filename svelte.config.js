@@ -6,7 +6,6 @@ import { mdsvex, escapeSvelte } from 'mdsvex';
 import shiki from 'shiki';
 import math from 'remark-math';
 import rehype from 'remark-rehype';
-//import rehypeMathjax from 'rehype-mathjax';
 import rehypeKatex from 'rehype-katex';
 
 /** @type {import('@sveltejs/kit').Config} */

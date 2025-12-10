@@ -14,7 +14,7 @@
 	"devDependencies": {
 		"@iconify/json": "^2.2.416",
 		"@sveltejs/adapter-auto": "^3.3.1",
-		"@sveltejs/adapter-node": "^4.0.1",
+		"@sveltejs/adapter-node": "^5.4.0",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.49.2",
 		"@typescript-eslint/eslint-plugin": "^8.49.0",
@@ -27,7 +27,7 @@
 		"prettier": "^3.7.4",
 		"prettier-plugin-svelte": "^3.4.0",
 		"svelte": "^4.2.20",
-		"svelte-check": "^3.8.6",
+		"svelte-check": "^4.3.4",
 		"svelte-time": "^0.8.3",
 		"tslib": "^2.8.1",
 		"typescript": "^5.9.3",
@@ -46,7 +46,6 @@
 		"mdsvex": "^0.11.2",
 		"ofetch": "^1.5.1",
 		"rehype-katex": "^7.0.1",
-		"rehype-mathjax": "^6.0.0",
 		"remark-math": "^6.0.0",
 		"remark-rehype": "^11.1.2",
 		"shiki": "^0.14.7"
