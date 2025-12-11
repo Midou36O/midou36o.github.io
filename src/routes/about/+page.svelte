@@ -8,7 +8,10 @@
 	import { quintOut } from 'svelte/easing';
 </script>
 
-<body class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans md:py-0 py-10% md:px-10%" id="content">
+<body
+	class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans md:py-0 py-10%"
+	id="content"
+>
 	<div class="min-h-screen">
 		<!-- Primary content (Left) -->
 		<div class="text-center">
@@ -45,7 +48,7 @@
 				<div
 					in:fly={{ delay: 300, duration: 300, y: -50, easing: quintOut }}
 					out:fly={{ duration: 300, y: 50, easing: quintOut }}
-					class="justify-center w-85% md:w-50% h-100% flex flex-col items-center md:m-5 shrink overflow-hidden h-screen"
+					class="justify-center w-85% md:w-50% sm:h-75% h-100% flex flex-col items-center md:m-5 sm:m-1 shrink overflow-hidden h-screen"
 				>
 					<div class="text-xl text-center overflow-scroll md:text-left text-black dark:text-white">
 						<p>
@@ -62,8 +65,8 @@
 							on my website.<br />
 							Oh, just in case, I'm a guy, and I'm {yr} old. You don't need to know more than that.<br
 							/>
-							Finally, feel free to contact me! I love receiving mails and messages from people, and
-							I'll try to respond as soon as possible.<br />
+							Finally, feel free to contact me! I love receiving mails and messages from people, and I'll
+							try to respond as soon as possible.<br />
 							If it's a question or a request, I'll see if can also publicly document it so that others
 							can benefit from it as well.<br />
 							Until then, have a nice day!
