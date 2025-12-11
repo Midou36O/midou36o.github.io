@@ -1,9 +1,4 @@
 <script>
-	import dayjs from 'dayjs';
-	import relativeTime from 'dayjs/plugin/relativeTime';
-	// DayJS
-	dayjs.extend(relativeTime);
-	let yr = dayjs('2004-07-15').fromNow(true);
 	import { fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 </script>
@@ -63,7 +58,7 @@
 							I do hate JS though, but svelte is making it bearable.<br />
 							This is just a brief summary of who I am, And I hope you enjoy your (rather short) stay
 							on my website.<br />
-							Oh, just in case, I'm a guy, and I'm {yr} old. You don't need to know more than that.<br
+							Oh, just in case, I'm a guy, and I'm 21 years old. You don't need to know more than that.<br
 							/>
 							Finally, feel free to contact me! I love receiving mails and messages from people, and I'll
 							try to respond as soon as possible.<br />

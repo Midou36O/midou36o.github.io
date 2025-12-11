@@ -226,7 +226,7 @@ More details in the [hyprpaper](https://github.com/hyprwm/hyprpaper/blob/main/RE
 Congratulations, you now know how to (roughly) setup hyprland!
 
 Now what?
-Well you can start ricing your TWM like a madman in [r/unixporn](https://lr.psf.lt/r/unixporn) or snatch the dotfiles and adapt it to your liking. But i'm not that type of guy, my desktop is simple.
+Well you can start ricing your TWM like a madman in [r/unixporn](https://farside.link/libreddit/r/unixporn) or snatch the dotfiles and adapt it to your liking. But i'm not that type of guy, my desktop is simple.
 
 [![My desktop](/blog/images/hyprland/desktop.png)](https://midou.dev/blog/images/hyprland/desktop.png)
 
