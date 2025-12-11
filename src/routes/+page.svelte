@@ -79,8 +79,8 @@
 				out:fly={{ delay: 50, duration: 250, y: 0, easing: quintOut }}
 				class="flex flex-row rounded md:p-1 md:dark:hover:bg-white md:dark:hover:text-black md:hover:bg-gray-400"
 			>
-				<a href="/about" data-sveltekit-preload-code
-					><div class="flex flex-row">
+				<a href="/about" class="flex flex-row flex-1" data-sveltekit-preload-code
+					><div class="flex flex-row flex-1">
 						<div class="i-gridicons-info text-5xl md:text-4xl align-middle my-auto" />
 						<h2 class="md:pl-2 text-4xl hidden md:block">About</h2>
 					</div></a
@@ -91,7 +91,7 @@
 				out:fly={{ delay: 100, duration: 200, y: 0, easing: quintOut }}
 				class="flex flex-row rounded md:p-1 md:dark:hover:bg-white md:dark:hover:text-black md:hover:bg-gray-400"
 			>
-				<a href="/projects" data-sveltekit-preload-code
+				<a href="/projects" class="flex flex-row flex-1" data-sveltekit-preload-code
 					><div class="flex flex-row">
 						<div class="i-octicon-project-16 text-5xl md:text-4xl my-auto" />
 						<h2 class="md:pl-2 text-4xl hidden md:block">Projects</h2>
@@ -103,7 +103,7 @@
 				out:fly={{ delay: 150, duration: 150, y: 0, easing: quintOut }}
 				class="flex flex-row rounded md:p-1 md:dark:hover:bg-white md:dark:hover:text-black md:hover:bg-gray-400"
 			>
-				<a href="/blog" data-sveltekit-preload-code
+				<a href="/blog" class="flex flex-row flex-1" data-sveltekit-preload-code
 					><div class="flex flex-row">
 						<div class="i-ph-book-bold text-5xl md:text-4xl my-auto" />
 						<h2 class="md:pl-2 text-4xl hidden md:block">Blog</h2>
