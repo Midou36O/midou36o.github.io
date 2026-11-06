@@ -55,11 +55,11 @@ void main() {
 
 	// R: density, G: wire brightness, B: retained bulb warmth, A: spark heat.
 	vec3 blue = vec3(.0784, .4235, 1.0);
-	vec3 yellow = uDarkMode ? vec3(1.0, .7804, .1216) : vec3(180.0, 83.0, 9.0) / 255.0;
-	vec3 color = mix(blue, yellow, lampWarmth(point));
+	vec3 yellow = vec3(1.0, .7804, .1216);
+	vec3 color = uDarkMode ? mix(blue, yellow, lampWarmth(point)) : blue;
 	float alpha = circle;
 	if (solid.g > 0.0) {
-		color = mix(blue, yellow, solid.b) * (uDarkMode ? solid.g : 1.0);
+		color = uDarkMode ? mix(blue, yellow, solid.b) * solid.g : blue;
 		alpha = uDarkMode ? 1.0 : solid.g;
 	}
 	if (solid.a > 0.0) {
@@ -67,13 +67,16 @@ void main() {
 		color = vec3(1.0, .4 + .45 * heat, .06 + .45 * heat);
 		alpha = 1.0;
 	}
-	// Faint but visible bulb haze dots. Gaps stay transparent with no background wash.
-	vec2 delta = (point - uLamp.xy) / uLamp.z;
-	float distance2 = dot(delta, delta);
-	float wisps = .82 + .18 * sin(point.x * .17 + uTime * .5) * sin(point.y * .13 - uTime * .3);
-	float haze = (.12 * exp(-distance2 / .5) + .04 * exp(-distance2 / .04)) * wisps * step(r, uSpacing * .13);
+	// Bulb lighting is dark-mode only. Gaps stay transparent with no background wash.
+	float haze = 0.0;
+	if (uDarkMode) {
+		vec2 delta = (point - uLamp.xy) / uLamp.z;
+		float distance2 = dot(delta, delta);
+		float wisps = .82 + .18 * sin(point.x * .17 + uTime * .5) * sin(point.y * .13 - uTime * .3);
+		haze = (.12 * exp(-distance2 / .5) + .04 * exp(-distance2 / .04)) * wisps * step(r, uSpacing * .13);
+	}
 	float hazeBehind = haze * (1.0 - alpha), outAlpha = alpha + hazeBehind;
-	vec3 hazeColor = uDarkMode ? vec3(1.0, .65, .12) : yellow;
+	vec3 hazeColor = vec3(1.0, .65, .12);
 	outColor = vec4((color * alpha + hazeColor * hazeBehind) / max(outAlpha, .00001), outAlpha);
 }
 `;

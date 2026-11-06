@@ -93,7 +93,8 @@ export class BackgroundEngine {
 						this.pendingObstacles = null;
 					} else {
 						this.resize(command.size, command.obstacles);
-						this.present();
+						// Animated resizes join the next physics tick instead of canceling its timer
+						if (this.still) this.present();
 						this.schedule();
 					}
 					break;
@@ -102,7 +103,7 @@ export class BackgroundEngine {
 					else if (this.pendingFrame) this.pendingObstacles = command.obstacles;
 					else {
 						this.updateObstacles(command.obstacles);
-						this.present();
+						if (this.still) this.present();
 						this.schedule();
 					}
 					break;
@@ -124,7 +125,7 @@ export class BackgroundEngine {
 						this.pendingObstacles = null;
 						this.updateObstacles(obstacles);
 					}
-					this.present();
+					if (this.still) this.present();
 					this.schedule();
 					break;
 				default:
@@ -255,7 +256,15 @@ export class BackgroundEngine {
 		const bitmap = this.canvas.transferToImageBitmap();
 		try {
 			this.pendingFrame = true;
-			this.emit({ type: 'frame', bitmap }, [bitmap]);
+			this.emit(
+				{
+					type: 'frame',
+					bitmap,
+					gridWidth: this.fluid.width,
+					gridHeight: this.fluid.height
+				},
+				[bitmap]
+			);
 			this.dirty = false;
 		} catch (error) {
 			this.pendingFrame = false;

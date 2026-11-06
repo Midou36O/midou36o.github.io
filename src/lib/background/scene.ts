@@ -155,7 +155,7 @@ export class SolidScene implements SceneState {
 				for (let b = a + 1; b < this.models.length; b++)
 					this.collide(this.models[a], this.models[b], scale);
 			}
-			for (const model of this.models) this.collideObstacles(model, scale);
+			for (const model of this.models) this.repelObstacles(model, scale, step);
 			remaining -= step;
 		} while (remaining > 1e-8);
 		this.lightScene(seconds, scale);
@@ -270,7 +270,7 @@ export class SolidScene implements SceneState {
 		this.lamp.x = x / count;
 		this.lamp.y = y / count;
 		this.lamp.z = z / count;
-		this.lamp.radius = Math.min(this.width, this.height) * 0.3;
+		this.lamp.radius = scale * 1.5;
 		const decay = Math.exp(-2.2 * seconds);
 		// Bulb wires stay yellow. Other wireframes cool back to blue after leaving its light.
 		for (const model of this.models) {
@@ -344,7 +344,12 @@ export class SolidScene implements SceneState {
 		}
 	}
 
-	private findContact(a: ProjectedHull, b: ProjectedHull, bodyA?: Body, bodyB?: Body): boolean {
+	private findOverlap(
+		a: ProjectedHull,
+		b: ProjectedHull,
+		padding = 0,
+		nearestSide = true
+	): boolean {
 		let depth = Infinity,
 			nx = 0,
 			ny = 0;
@@ -377,19 +382,29 @@ export class SolidScene implements SceneState {
 					minB = Math.min(minB, d);
 					maxB = Math.max(maxB, d);
 				}
-				const forward = maxA - minB,
-					backward = maxB - minA,
+				const forward = maxA - minB + padding,
+					backward = maxB - minA + padding,
 					overlap = Math.min(forward, backward);
 				if (overlap <= 0) return false;
 				if (overlap < depth) {
 					depth = overlap;
-					const sign = !bodyB && backward < forward ? -1 : 1;
+					const sign = nearestSide && backward < forward ? -1 : 1;
 					nx = x * sign;
 					ny = y * sign;
 				}
 			}
 		}
-		if (bodyA && bodyB && nx * (bodyB.x - bodyA.x) + ny * (bodyB.y - bodyA.y) < 0) {
+		this.contact.nx = nx;
+		this.contact.ny = ny;
+		this.contact.depth = depth;
+		return true;
+	}
+
+	private findContact(a: ProjectedHull, b: ProjectedHull, bodyA: Body, bodyB: Body): boolean {
+		// Mesh-pair normals follow the body centers, not the nearest HTML escape face
+		if (!this.findOverlap(a, b, 0, false)) return false;
+		let { nx, ny } = this.contact;
+		if (nx * (bodyB.x - bodyA.x) + ny * (bodyB.y - bodyA.y) < 0) {
 			nx = -nx;
 			ny = -ny;
 		}
@@ -401,11 +416,7 @@ export class SolidScene implements SceneState {
 			na = 0,
 			nb = 0,
 			maxA = -Infinity,
-			minB = Infinity,
-			minTA = Infinity,
-			maxTA = -Infinity,
-			minTB = Infinity,
-			maxTB = -Infinity;
+			minB = Infinity;
 		for (let i = 0; i < a.hullCount; i++) {
 			const k = a.hull[i] * 3;
 			maxA = Math.max(maxA, a.projected[k] * nx + a.projected[k + 1] * ny);
@@ -419,11 +430,6 @@ export class SolidScene implements SceneState {
 			if (maxA - a.projected[k] * nx - a.projected[k + 1] * ny < 0.5) {
 				ax += a.projected[k];
 				ay += a.projected[k + 1];
-				if (!bodyB) {
-					const tangent = -a.projected[k] * ny + a.projected[k + 1] * nx;
-					minTA = Math.min(minTA, tangent);
-					maxTA = Math.max(maxTA, tangent);
-				}
 				na++;
 			}
 		}
@@ -432,26 +438,13 @@ export class SolidScene implements SceneState {
 			if (b.projected[k] * nx + b.projected[k + 1] * ny - minB < 0.5) {
 				bx += b.projected[k];
 				by += b.projected[k + 1];
-				if (!bodyB) {
-					const tangent = -b.projected[k] * ny + b.projected[k + 1] * nx;
-					minTB = Math.min(minTB, tangent);
-					maxTB = Math.max(maxTB, tangent);
-				}
 				nb++;
 			}
 		}
 		this.contact.nx = nx;
 		this.contact.ny = ny;
-		this.contact.depth = depth;
 		this.contact.x = (ax / na + bx / nb) * 0.5;
 		this.contact.y = (ay / na + by / nb) * 0.5;
-		if (!bodyB) {
-			// Keep a long text face's contact on the mesh, not at the text line's midpoint.
-			const tangent = (Math.max(minTA, minTB) + Math.min(maxTA, maxTB)) * 0.5,
-				normal = (maxA + minB) * 0.5;
-			this.contact.x = nx * normal - ny * tangent;
-			this.contact.y = ny * normal + nx * tangent;
-		}
 		return true;
 	}
 
@@ -523,61 +516,64 @@ export class SolidScene implements SceneState {
 		projectMesh(modelB.mesh, b, scale);
 	}
 
-	private collideObstacles(model: Model, scale: number): void {
+	private repelObstacles(model: Model, scale: number, seconds: number): void {
 		if (!this.obstacles.length) return;
-		const a = model.body,
-			inertia = scale * scale * 0.65;
+		const mesh = model.mesh,
+			body = model.body,
+			range = scale * 0.45;
 		let minX = Infinity,
 			maxX = -Infinity,
 			minY = Infinity,
 			maxY = -Infinity;
-		for (let i = 0; i < model.mesh.hullCount; i++) {
-			const k = model.mesh.hull[i] * 3;
-			minX = Math.min(minX, model.mesh.projected[k]);
-			maxX = Math.max(maxX, model.mesh.projected[k]);
-			minY = Math.min(minY, model.mesh.projected[k + 1]);
-			maxY = Math.max(maxY, model.mesh.projected[k + 1]);
+		for (let i = 0; i < mesh.hullCount; i++) {
+			const k = mesh.hull[i] * 3;
+			minX = Math.min(minX, mesh.projected[k]);
+			maxX = Math.max(maxX, mesh.projected[k]);
+			minY = Math.min(minY, mesh.projected[k + 1]);
+			maxY = Math.max(maxY, mesh.projected[k + 1]);
 		}
-		let touching = false;
+		let depth = 0,
+			nx = 0,
+			ny = 0;
 		for (const obstacle of this.obstacles) {
 			if (
-				maxX <= obstacle.minX ||
-				minX >= obstacle.maxX ||
-				maxY <= obstacle.minY ||
-				minY >= obstacle.maxY
+				maxX + range <= obstacle.minX ||
+				minX - range >= obstacle.maxX ||
+				maxY + range <= obstacle.minY ||
+				minY - range >= obstacle.maxY
 			)
 				continue;
-			if (!this.findContact(model.mesh, obstacle)) continue;
-			touching = true;
-			const { nx, ny, x, y } = this.contact,
-				rx = x - a.x,
-				ry = y - a.y,
-				spin = a.bz + a.wz,
-				speed = -(a.vx - spin * ry) * nx - (a.vy + spin * rx) * ny,
-				lever = rx * ny - ry * nx;
-			if (speed >= 0) continue;
-			// Text is an infinite-mass body. Only the moving mesh receives the reaction.
-			const impulse = (-1.85 * speed) / (1 + (lever * lever) / inertia);
-			this.emitSparks(x, y, nx, ny, impulse, scale);
-			a.vx -= nx * impulse;
-			a.vy -= ny * impulse;
-			a.wz -= (lever * impulse) / inertia;
-			const tx = -ny,
-				ty = nx,
-				tangentLever = rx * ty - ry * tx,
-				slip = -(a.vx - (a.bz + a.wz) * ry) * tx - (a.vy + (a.bz + a.wz) * rx) * ty,
-				friction = clamp(
-					-slip / (1 + (tangentLever * tangentLever) / inertia),
-					-impulse * 0.35,
-					impulse * 0.35
-				);
-			a.vx -= tx * friction;
-			a.vy -= ty * friction;
-			a.wz -= (tangentLever * friction) / inertia;
-			a.wx -= ((ny * impulse) / scale) * 0.12;
-			a.wy += ((nx * impulse) / scale) * 0.12;
+			if (!this.findOverlap(mesh, obstacle, range) || this.contact.depth <= depth) continue;
+			// The strongest boundary wins so overlapping text does not multiply the force
+			depth = this.contact.depth;
+			nx = this.contact.nx;
+			ny = this.contact.ny;
 		}
-		if (touching) this.separateObstacles(model, scale);
+		if (!depth) return;
+		// A compact, model-relative field slows approaching motion without bounce or torque
+		const pressure = Math.min(depth / range, 1),
+			strength = pressure * pressure * (3 - 2 * pressure),
+			approaching = Math.max(0, body.vx * nx + body.vy * ny),
+			gap = Math.max(range - depth, range * 0.05),
+			braking = approaching * -Math.expm1(-seconds * (12 * strength + approaching / gap)),
+			push = scale * 12 * strength * seconds + braking;
+		body.vx -= nx * push;
+		body.vy -= ny * push;
+		if (depth <= range) return;
+		// Layout changes or a forced drag can start inside the field. Recover quietly, never spark
+		const x = body.x,
+			y = body.y;
+		this.separateObstacles(model, scale);
+		const dx = body.x - x,
+			dy = body.y - y,
+			distance = Math.hypot(dx, dy);
+		if (distance > 0) {
+			const inward = (body.vx * dx + body.vy * dy) / distance;
+			if (inward < 0) {
+				body.vx -= (dx / distance) * inward;
+				body.vy -= (dy / distance) * inward;
+			}
+		}
 	}
 
 	private separateObstacles(model: Model, scale: number): void {
@@ -593,7 +589,7 @@ export class SolidScene implements SceneState {
 			minY = Math.min(minY, mesh.projected[k + 1]);
 			maxY = Math.max(maxY, mesh.projected[k + 1]);
 		}
-		// Ordinary impacts need only their minimum SAT correction, not a sweep of every hull axis.
+		// Small overlaps need only their minimum SAT correction, not a sweep of every hull axis.
 		contacts: for (let pass = 0; pass <= 4; pass++) {
 			let touching = false;
 			for (const obstacle of this.obstacles) {
@@ -604,7 +600,7 @@ export class SolidScene implements SceneState {
 					minY >= obstacle.maxY
 				)
 					continue;
-				if (!this.findContact(mesh, obstacle)) continue;
+				if (!this.findOverlap(mesh, obstacle)) continue;
 				if (pass === 4) break contacts;
 				const { nx, ny, depth } = this.contact,
 					dx = -nx * (depth + 0.02),

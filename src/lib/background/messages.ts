@@ -35,7 +35,7 @@ export type BackgroundCommand =
 	| { type: 'destroy' };
 
 export type BackgroundEvent =
-	| { type: 'frame'; bitmap: ImageBitmap }
+	| { type: 'frame'; bitmap: ImageBitmap; gridWidth: number; gridHeight: number }
 	| { type: 'ready' }
 	| { type: 'state'; interactive: boolean; cursor: 'default' | 'grab' | 'grabbing' }
 	| { type: 'error'; message: string };

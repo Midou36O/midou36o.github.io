@@ -6,6 +6,7 @@ import {
 	type BackgroundSize
 } from './messages.ts';
 import type { Obstacle } from './types.ts';
+import { TextDimmer } from './dimmer.ts';
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -23,6 +24,7 @@ export class BackgroundController {
 	private readonly observer: ResizeObserver;
 	private readonly contentObserver: ResizeObserver;
 	private readonly mutations: MutationObserver;
+	private readonly dimmer: TextDimmer;
 	private readonly darkMode = window.matchMedia('(prefers-color-scheme: dark)');
 	private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 	private environment: BackgroundEnvironment = {
@@ -34,6 +36,8 @@ export class BackgroundController {
 	private obstacles: Obstacle[] = [];
 	private size: BackgroundSize = { width: 0, height: 0, dpr: 1 };
 	private grid = { width: 0, height: 0 };
+	private presentedGridWidth = 0;
+	private presentedGridHeight = 0;
 	private worker: Worker | null = null;
 	private bitmapContext: ImageBitmapRenderingContext | null = null;
 	private drawingContext: CanvasRenderingContext2D | null = null;
@@ -58,11 +62,14 @@ export class BackgroundController {
 		private readonly frame: HTMLElement,
 		private readonly onPerformanceReady: () => void
 	) {
+		this.dimmer = new TextDimmer(frame);
 		this.updateInteractivity();
 		this.observer = new ResizeObserver(this.resize);
 		this.observer.observe(frame);
 		this.contentObserver = new ResizeObserver(this.measureObstacles);
-		this.mutations = new MutationObserver(this.observeContent);
+		this.mutations = new MutationObserver((records) => {
+			if (records.some((record) => !frame.contains(record.target))) this.observeContent();
+		});
 		const options = { signal: this.listeners.signal };
 		canvas.addEventListener('pointermove', this.pointerMove, options);
 		canvas.addEventListener('pointerdown', this.pointerDown, options);
@@ -163,11 +170,13 @@ export class BackgroundController {
 				let failed = false;
 				try {
 					if (Math.min(window.devicePixelRatio || 1, 2) !== this.size.dpr) this.resize();
-					if (
-						this.worker === worker &&
-						bitmap.width === this.canvas.width &&
-						bitmap.height === this.canvas.height
-					) {
+					if (this.worker === worker) {
+						// Keep completed frames visible while the worker catches up with a changing size
+						// Higher-resolution pixels retain crisp, non-AA edges on the smaller models.
+						if (this.canvas.width !== bitmap.width) this.canvas.width = bitmap.width;
+						if (this.canvas.height !== bitmap.height) this.canvas.height = bitmap.height;
+						this.presentedGridWidth = message.gridWidth;
+						this.presentedGridHeight = message.gridHeight;
 						if (this.bitmapContext) this.bitmapContext.transferFromImageBitmap(bitmap);
 						else if (this.drawingContext) {
 							this.drawingContext.imageSmoothingEnabled = false;
@@ -292,11 +301,9 @@ export class BackgroundController {
 		if (width === this.size.width && height === this.size.height && dpr === this.size.dpr) return;
 		this.endDrag();
 		this.size = { width, height, dpr };
-		this.canvas.width = Math.round(width * dpr);
-		this.canvas.height = Math.round(height * dpr);
-		// Higher-resolution pixels retain crisp, non-AA edges on the smaller models.
 		this.grid = simulationSize(this.size);
 		this.obstacles = this.collectObstacles();
+		this.dimmer.update();
 		this.post({ type: 'resize', size: this.size, obstacles: this.obstacles });
 		this.fallback?.update(this.size, this.obstacles, this.darkMode.matches);
 	};
@@ -358,6 +365,7 @@ export class BackgroundController {
 	private measureObstacles = () => {
 		if (this.disposed || !this.grid.width || !this.grid.height) return;
 		const obstacles = this.collectObstacles();
+		this.dimmer.update();
 		if (
 			this.obstacles.length === obstacles.length &&
 			obstacles.every((obstacle, i) => {
@@ -412,15 +420,18 @@ export class BackgroundController {
 
 	private pointerPosition(event: PointerEvent): void {
 		const bounds = this.canvas.getBoundingClientRect();
-		const cellScale = Math.min(bounds.width / this.grid.width, bounds.height / this.grid.height);
-		const offsetX = (bounds.width - this.grid.width * cellScale) / 2;
-		const offsetY = (bounds.height - this.grid.height * cellScale) / 2;
-		this.pointerX = clamp((event.clientX - bounds.left - offsetX) / cellScale, 0, this.grid.width);
-		this.pointerY = clamp(
-			(bounds.bottom - event.clientY - offsetY) / cellScale,
-			0,
-			this.grid.height
-		);
+		const width = this.presentedGridWidth || this.grid.width;
+		const height = this.presentedGridHeight || this.grid.height;
+		const fitScale = Math.min(bounds.width / this.canvas.width, bounds.height / this.canvas.height);
+		const cellScale = fitScale * Math.min(this.canvas.width / width, this.canvas.height / height);
+		const offsetX = (bounds.width - width * cellScale) / 2;
+		const offsetY = (bounds.height - height * cellScale) / 2;
+		this.pointerX =
+			(clamp((event.clientX - bounds.left - offsetX) / cellScale, 0, width) * this.grid.width) /
+			width;
+		this.pointerY =
+			(clamp((bounds.bottom - event.clientY - offsetY) / cellScale, 0, height) * this.grid.height) /
+			height;
 	}
 
 	private flushPointerMove = () => {
@@ -499,6 +510,7 @@ export class BackgroundController {
 		this.observer.disconnect();
 		this.contentObserver.disconnect();
 		this.mutations.disconnect();
+		this.dimmer.destroy();
 		this.endDrag();
 		this.stopWorker();
 		this.bitmap?.close();

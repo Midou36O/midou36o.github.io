@@ -243,9 +243,9 @@ function createCanvasRenderer(
 			const spacing = SETTINGS.spacing * dpr;
 			const startX = (w * 0.5) % spacing;
 			const startY = (h * 0.5) % spacing;
-			const warmRed = darkMode ? 255 : 180;
-			const warmGreen = darkMode ? 199 : 83;
-			const warmBlue = darkMode ? 31 : 9;
+			const warmRed = 255;
+			const warmGreen = 199;
+			const warmBlue = 31;
 			const cellScale = Math.min(w / width, h / height);
 			const offsetX = (w - width * cellScale) * 0.5;
 			const offsetY = (h - height * cellScale) * 0.5;
@@ -253,21 +253,16 @@ function createCanvasRenderer(
 				for (let xx = startX; xx < w; xx += spacing) {
 					const x = (xx - offsetX) / cellScale;
 					const y = (h - yy - offsetY) / cellScale;
-					const haze = hazeAt(x, y, scene.lamp, time);
+					const haze = darkMode ? hazeAt(x, y, scene.lamp, time) : 0;
 					if (haze >= 1 / 255) {
-						pixelCircle(
-							xx,
-							yy,
-							spacing * 0.13,
-							`rgba(${warmRed},${darkMode ? 166 : warmGreen},${warmBlue},${haze})`
-						);
+						pixelCircle(xx, yy, spacing * 0.13, `rgba(${warmRed},166,${warmBlue},${haze})`);
 					}
 					const bottomBed = Math.exp(-(1 - yy / h) * 32);
 					const density = Math.max(bilinear(fluid.density, x, y, width, height), bottomBed);
 					const sizeFactor = smoothstep(0.015, 0.92, clamp(density * SETTINGS.growth, 0, 1));
 					const radius = spacing * 0.43 * sizeFactor;
 					if (sizeFactor === 0) continue;
-					const warmth = illumination(x, y, scene.lamp);
+					const warmth = darkMode ? illumination(x, y, scene.lamp) : 0;
 					pixelCircle(
 						xx,
 						yy,
@@ -285,7 +280,7 @@ function createCanvasRenderer(
 					const brightness = darkMode ? shade : 1;
 					ctx.globalAlpha = scene.sparkInk[i] || darkMode ? 1 : shade;
 					const heat = Math.round((scene.sparkInk[i] / 255) * 4) / 4;
-					const warmth = scene.warmth[i];
+					const warmth = darkMode ? scene.warmth[i] : 0;
 					ctx.fillStyle = scene.sparkInk[i]
 						? `rgb(255,${Math.round(255 * (0.4 + 0.45 * heat))},${Math.round(255 * (0.06 + 0.45 * heat))})`
 						: `rgb(${Math.round((20 + (warmRed - 20) * warmth) * brightness)},${Math.round((108 + (warmGreen - 108) * warmth) * brightness)},${Math.round((255 + (warmBlue - 255) * warmth) * brightness)})`;

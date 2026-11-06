@@ -33,6 +33,9 @@
 
 <style>
 	.scene-background {
+		--scene-surface: #d1d5db;
+		display: flex;
+		justify-content: center;
 		position: fixed;
 		inset: 0;
 		inset-inline-start: auto;
@@ -43,6 +46,45 @@
 		pointer-events: auto;
 		opacity: calc(1 - var(--programmer-isolation, 0));
 		transition: opacity var(--programmer-restore-duration, 0s) ease;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.scene-background {
+			--scene-surface: #000;
+		}
+	}
+
+	/* Dimming stays inside the background layer, underneath every HTML element */
+	.scene-background :global(.scene-dimmer) {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+	}
+
+	.scene-background :global(.scene-dimmer-region) {
+		--feather: 12px;
+		position: absolute;
+		box-sizing: content-box;
+		padding: var(--feather);
+		transform: translate(calc(-1 * var(--feather)), calc(-1 * var(--feather)));
+		background: var(--scene-surface);
+		opacity: calc(0.94 * var(--text-opacity, 1));
+		mask-image:
+			linear-gradient(
+				to right,
+				transparent,
+				#000 var(--feather),
+				#000 calc(100% - var(--feather)),
+				transparent
+			),
+			linear-gradient(
+				to bottom,
+				transparent,
+				#000 var(--feather),
+				#000 calc(100% - var(--feather)),
+				transparent
+			);
+		mask-composite: intersect;
 	}
 
 	.scene-background::after {
@@ -134,8 +176,12 @@
 
 	canvas {
 		display: block;
-		width: 100%;
+		/* Keep cached frames at full height while the worker catches up with a changing width */
+		flex-shrink: 0;
+		width: auto;
+		min-width: 100%;
 		height: 100%;
+		object-fit: contain;
 		touch-action: none;
 		cursor: default;
 		opacity: 0;
