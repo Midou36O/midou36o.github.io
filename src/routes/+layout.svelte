@@ -2,7 +2,7 @@
 	import 'uno.css';
 	import '#lib/style.css';
 	import { page } from '$app/state';
-	import type { Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import SceneBackground from '#lib/background/SceneBackground.svelte';
 	import '@unocss/reset/tailwind.css';
@@ -12,10 +12,19 @@
 	let { children }: { children: Snippet } = $props();
 	let readingBlog = $derived(page.url.pathname.startsWith('/blog/'));
 	const mobile = new MediaQuery('(max-width: 720px)', false);
+	let enhanced = $state(false);
+
+	onMount(() => {
+		enhanced = true;
+	});
 </script>
 
-<main class="site-shell dark:bg-black bg-gray-300 overflow-hidden" class:blog-reading={readingBlog}>
-	{#if !readingBlog || !mobile.current}
+<main
+	class="site-shell dark:bg-black bg-gray-300 overflow-hidden"
+	class:blog-reading={readingBlog}
+	class:enhanced
+>
+	{#if enhanced && (!readingBlog || !mobile.current)}
 		<SceneBackground reading={readingBlog} />
 	{/if}
 	<div class="site-content">
@@ -28,6 +37,10 @@
 		position: relative;
 		isolation: isolate;
 		min-height: 100vh;
+	}
+
+	.site-shell:not(.enhanced) :global(.programmer-reveal) {
+		pointer-events: none;
 	}
 
 	.site-shell:has(
@@ -58,11 +71,11 @@
 	}
 
 	@media (min-width: 721px) and (prefers-reduced-motion: no-preference) {
-		.site-content {
+		.enhanced .site-content {
 			transition: padding-inline-end 650ms cubic-bezier(0.22, 1, 0.36, 1);
 		}
 
-		.blog-reading .site-content {
+		.enhanced.blog-reading .site-content {
 			animation: reading-enter 850ms ease both;
 		}
 
@@ -79,8 +92,14 @@
 		}
 	}
 
+	@media (min-width: 721px) {
+		.enhanced.blog-reading {
+			--scene-rail-width: max(12rem, 23vw, calc(100vw - 72rem));
+		}
+	}
+
 	.blog-reading {
-		--scene-rail-width: max(12rem, 23vw, calc(100vw - 72rem));
+		--scene-rail-width: 0px;
 	}
 
 	.blog-reading .site-content {

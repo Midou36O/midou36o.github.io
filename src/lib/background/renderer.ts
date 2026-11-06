@@ -1,8 +1,21 @@
 import { FRAGMENT_SHADER, VERTEX_SHADER } from './shaders.ts';
 import { SETTINGS, type Lamp, type Renderer } from './types.ts';
 
+type BackgroundCanvas = HTMLCanvasElement | OffscreenCanvas;
+
+export function createRenderer(canvas: OffscreenCanvas): {
+	canvas: OffscreenCanvas;
+	renderer: Renderer;
+	animated: boolean;
+};
+
 export function createRenderer(canvas: HTMLCanvasElement): {
 	canvas: HTMLCanvasElement;
+	renderer: Renderer;
+	animated: boolean;
+};
+export function createRenderer(canvas: BackgroundCanvas): {
+	canvas: BackgroundCanvas;
 	renderer: Renderer;
 	animated: boolean;
 } {
@@ -14,16 +27,22 @@ export function createRenderer(canvas: HTMLCanvasElement): {
 			depth: false,
 			stencil: false,
 			preserveDrawingBuffer: true
-		});
+		}) as WebGL2RenderingContext | null;
 		if (gl) return { canvas, renderer: createWebGLRenderer(canvas, gl), animated: true };
 	} catch {
 		// A failed WebGL canvas needs replacing before it can acquire a 2D context
-		const replacement = canvas.cloneNode(false) as HTMLCanvasElement;
-		canvas.replaceWith(replacement);
-		canvas = replacement;
+		if (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas) {
+			canvas = new OffscreenCanvas(canvas.width, canvas.height);
+		} else {
+			const source = canvas as HTMLCanvasElement;
+			const replacement = source.cloneNode(false) as HTMLCanvasElement;
+			source.replaceWith(replacement);
+			canvas = replacement;
+		}
 	}
 
-	const ctx = canvas.getContext('2d');
+	const ctx = canvas.getContext('2d') as
+		CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null;
 	if (!ctx) throw new Error('Neither WebGL2 nor Canvas 2D is available for the background');
 	return { canvas, renderer: createCanvasRenderer(canvas, ctx), animated: false };
 }
@@ -44,7 +63,7 @@ function compileShader(gl: WebGL2RenderingContext, type: number, source: string)
 	}
 }
 
-function createWebGLRenderer(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext): Renderer {
+function createWebGLRenderer(canvas: BackgroundCanvas, gl: WebGL2RenderingContext): Renderer {
 	let vertex: WebGLShader | null = null;
 	let fragment: WebGLShader | null = null;
 	let program: WebGLProgram | null = null;
@@ -190,7 +209,10 @@ function hazeAt(x: number, y: number, lamp: Lamp, time: number): number {
 	return (0.12 * Math.exp(-distance2 / 0.5) + 0.04 * Math.exp(-distance2 / 0.04)) * wisps;
 }
 
-function createCanvasRenderer(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): Renderer {
+function createCanvasRenderer(
+	canvas: BackgroundCanvas,
+	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+): Renderer {
 	let width = 0;
 	let height = 0;
 	let destroyed = false;

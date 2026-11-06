@@ -1,67 +1,64 @@
-import { FluidField } from './fluid.ts';
-import { createRenderer } from './renderer.ts';
-import { SolidScene } from './scene.ts';
+import {
+	simulationSize,
+	type BackgroundCommand,
+	type BackgroundEnvironment,
+	type BackgroundEvent,
+	type BackgroundSize
+} from './messages.ts';
 import type { Obstacle } from './types.ts';
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 const PROTECTED_CONTENT = 'a, button, h1, h2, h3, h4, h5, h6, p, pre, blockquote, table, img';
 
-const FRAME_CPU_BUDGET_MS = 50;
-const PERFORMANCE_WARMUP_MS = 1000;
-const PERFORMANCE_WINDOW_MS = 2000;
-const PERFORMANCE_MIN_FRAMES = 8;
+type StaticBackground = {
+	readonly canvas: HTMLCanvasElement;
+	update(size: BackgroundSize, obstacles: Obstacle[], dark: boolean): void;
+	destroy(): void;
+};
+type PointerCommand = Extract<BackgroundCommand, { type: 'pointer' }>;
 
 export class BackgroundController {
-	private readonly fluid = new FluidField();
-	private readonly scene = new SolidScene();
-	private readonly renderer;
-	private readonly softwareFallback: boolean;
-	private performanceFallback = false;
-	private sampledFrames = 0;
-	private sampledCpuTime = 0;
-	private sampleWindowStart = 0;
-	private initialCheckComplete = false;
-
-	private get still(): boolean {
-		return this.softwareFallback || this.performanceFallback || this.reducedMotion.matches;
-	}
 	private readonly listeners = new AbortController();
 	private readonly observer: ResizeObserver;
 	private readonly contentObserver: ResizeObserver;
 	private readonly mutations: MutationObserver;
-	private protectedElements: Element[] = [];
 	private readonly darkMode = window.matchMedia('(prefers-color-scheme: dark)');
 	private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-	private staticComposition = false;
-	private obstacles: Obstacle[] | null = null;
-	private animation = 0;
-	private lastTime = 0;
-	private time = 0;
-	private cssWidth = 0;
-	private cssHeight = 0;
-	private dpr = 1;
+	private environment: BackgroundEnvironment = {
+		dark: this.darkMode.matches,
+		reduced: this.reducedMotion.matches,
+		visible: !document.hidden
+	};
+	private protectedElements: Element[] = [];
+	private obstacles: Obstacle[] = [];
+	private size: BackgroundSize = { width: 0, height: 0, dpr: 1 };
+	private grid = { width: 0, height: 0 };
+	private worker: Worker | null = null;
+	private bitmapContext: ImageBitmapRenderingContext | null = null;
+	private drawingContext: CanvasRenderingContext2D | null = null;
+	private bitmap: ImageBitmap | null = null;
+	private fallback: StaticBackground | null = null;
+	private fallbackRequested = false;
+	private fallbackTask: number | null = null;
+	private fallbackTaskIsIdle = false;
+	private workerInteractive = false;
+	private interactive = false;
+	private cursor: 'default' | 'grab' | 'grabbing' = 'default';
 	private pointerId: number | null = null;
 	private pointerX = 0;
 	private pointerY = 0;
-	private previousX = 0;
-	private previousY = 0;
-	private hasPrevious = false;
+	private pendingMove: PointerCommand | null = null;
+	private moveAnimation = 0;
+	private initialCheckComplete = false;
 	private disposed = false;
 
 	constructor(
-		private readonly canvas: HTMLCanvasElement,
+		private canvas: HTMLCanvasElement,
 		private readonly frame: HTMLElement,
 		private readonly onPerformanceReady: () => void
 	) {
-		const result = createRenderer(canvas);
-		this.renderer = result.renderer;
-		this.softwareFallback = !result.animated;
-		canvas = this.canvas = result.canvas;
-		if (this.softwareFallback) {
-			canvas.style.pointerEvents = 'none';
-			canvas.style.touchAction = 'auto';
-		}
+		this.updateInteractivity();
 		this.observer = new ResizeObserver(this.resize);
 		this.observer.observe(frame);
 		this.contentObserver = new ResizeObserver(this.measureObstacles);
@@ -74,9 +71,9 @@ export class BackgroundController {
 		canvas.addEventListener('lostpointercapture', this.endDrag, options);
 		canvas.addEventListener('pointerleave', this.pointerLeave, options);
 		window.addEventListener('resize', this.resize, options);
-		document.addEventListener('visibilitychange', this.syncPlayback, options);
-		this.reducedMotion.addEventListener('change', this.syncPlayback, options);
-		this.darkMode.addEventListener('change', this.draw, options);
+		document.addEventListener('visibilitychange', this.syncEnvironment, options);
+		this.reducedMotion.addEventListener('change', this.syncEnvironment, options);
+		this.darkMode.addEventListener('change', this.syncEnvironment, options);
 		const content = frame.parentElement;
 		if (content) {
 			this.mutations.observe(content, { childList: true, subtree: true, characterData: true });
@@ -92,7 +89,198 @@ export class BackgroundController {
 			if (!this.disposed) this.measureObstacles();
 		});
 		this.resize();
-		this.syncPlayback();
+		this.startWorker();
+	}
+
+	private startWorker(): void {
+		if (typeof Worker === 'undefined' || typeof OffscreenCanvas === 'undefined') {
+			this.useStaticBackground();
+			return;
+		}
+		try {
+			this.bitmapContext = this.canvas.getContext('bitmaprenderer');
+		} catch {
+			this.bitmapContext = null;
+		}
+		if (!this.bitmapContext) {
+			try {
+				this.drawingContext = this.canvas.getContext('2d');
+			} catch {
+				this.drawingContext = null;
+			}
+		}
+		if (!this.bitmapContext && !this.drawingContext) {
+			this.useStaticBackground();
+			return;
+		}
+		try {
+			const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
+			this.worker = worker;
+			worker.onmessage = (event: MessageEvent<BackgroundEvent>) => this.receive(worker, event.data);
+			worker.onerror = (event) => {
+				event.preventDefault();
+				if (this.worker === worker) this.useStaticBackground();
+			};
+			worker.onmessageerror = () => {
+				if (this.worker === worker) this.useStaticBackground();
+			};
+			this.post({
+				type: 'initialize',
+				size: this.size,
+				environment: this.environment,
+				obstacles: this.obstacles
+			});
+		} catch {
+			this.useStaticBackground();
+		}
+	}
+
+	private post(command: BackgroundCommand): void {
+		if (this.disposed || !this.worker) return;
+		try {
+			this.worker.postMessage(command);
+		} catch {
+			this.useStaticBackground();
+		}
+	}
+
+	private receive(worker: Worker, message: BackgroundEvent): void {
+		if (this.disposed || worker !== this.worker) {
+			this.discardBitmap(message);
+			return;
+		}
+		if (!message || typeof message !== 'object') {
+			this.useStaticBackground();
+			return;
+		}
+		switch (message.type) {
+			case 'frame': {
+				if (typeof ImageBitmap === 'undefined' || !(message.bitmap instanceof ImageBitmap)) {
+					this.useStaticBackground();
+					return;
+				}
+				const bitmap = (this.bitmap = message.bitmap);
+				let failed = false;
+				try {
+					if (Math.min(window.devicePixelRatio || 1, 2) !== this.size.dpr) this.resize();
+					if (
+						this.worker === worker &&
+						bitmap.width === this.canvas.width &&
+						bitmap.height === this.canvas.height
+					) {
+						if (this.bitmapContext) this.bitmapContext.transferFromImageBitmap(bitmap);
+						else if (this.drawingContext) {
+							this.drawingContext.imageSmoothingEnabled = false;
+							this.drawingContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+							this.drawingContext.drawImage(bitmap, 0, 0);
+						}
+					}
+				} catch {
+					failed = true;
+				} finally {
+					bitmap.close();
+					this.bitmap = null;
+					if (this.worker === worker) this.post({ type: 'frame-consumed' });
+				}
+				if (failed) this.useStaticBackground();
+				return;
+			}
+			case 'ready':
+				this.finishInitialCheck();
+				return;
+			case 'state':
+				if (
+					typeof message.interactive !== 'boolean' ||
+					(message.cursor !== 'default' &&
+						message.cursor !== 'grab' &&
+						message.cursor !== 'grabbing')
+				) {
+					this.useStaticBackground();
+					return;
+				}
+				this.workerInteractive = message.interactive;
+				this.cursor = message.cursor;
+				this.updateInteractivity();
+				return;
+			case 'error':
+				this.useStaticBackground();
+				return;
+			default:
+				this.discardBitmap(message);
+				this.useStaticBackground();
+		}
+	}
+
+	private discardBitmap(message: unknown): void {
+		if (!message || typeof message !== 'object' || !('bitmap' in message)) return;
+		if (typeof ImageBitmap !== 'undefined' && message.bitmap instanceof ImageBitmap) {
+			message.bitmap.close();
+		}
+	}
+
+	private stopWorker(): void {
+		const worker = this.worker;
+		this.worker = null;
+		if (!worker) return;
+		worker.onmessage = null;
+		worker.onerror = null;
+		worker.onmessageerror = null;
+		try {
+			worker.postMessage({ type: 'destroy' } satisfies BackgroundCommand);
+		} catch {
+			// Termination also releases resources if the worker is already unavailable.
+		}
+		worker.terminate();
+	}
+
+	private scheduleStaticSetup(setup: () => void): void {
+		const run = () => {
+			this.fallbackTask = null;
+			if (!this.disposed) setup();
+		};
+		this.fallbackTaskIsIdle = typeof window.requestIdleCallback === 'function';
+		this.fallbackTask = this.fallbackTaskIsIdle
+			? window.requestIdleCallback(run, { timeout: 1000 })
+			: window.setTimeout(run, 0);
+	}
+
+	private useStaticBackground(): void {
+		if (this.disposed || this.fallbackRequested) return;
+		this.fallbackRequested = true;
+		this.endDrag();
+		this.stopWorker();
+		this.workerInteractive = false;
+		this.bitmap?.close();
+		this.bitmap = null;
+		this.bitmapContext = null;
+		this.drawingContext = null;
+		const canvas = this.canvas.cloneNode(false) as HTMLCanvasElement;
+		this.canvas.replaceWith(canvas);
+		this.canvas = canvas;
+		this.updateInteractivity();
+		this.scheduleStaticSetup(() => {
+			void import('./static.ts')
+				.then(({ createStaticBackground }) => {
+					if (this.disposed) return;
+					this.scheduleStaticSetup(() => {
+						let background: StaticBackground | null = null;
+						try {
+							background = createStaticBackground(this.canvas);
+							this.canvas = background.canvas;
+							this.updateInteractivity();
+							background.update(this.size, this.obstacles, this.darkMode.matches);
+							this.fallback = background;
+							this.finishInitialCheck();
+						} catch (error) {
+							background?.destroy();
+							console.warn('Could not initialize the static background', error);
+						}
+					});
+				})
+				.catch((error: unknown) => {
+					if (!this.disposed) console.warn('Could not load the static background', error);
+				});
+		});
 	}
 
 	private resize = () => {
@@ -101,39 +289,16 @@ export class BackgroundController {
 		const width = Math.max(1, Math.round(bounds.width));
 		const height = Math.max(1, Math.round(bounds.height));
 		const dpr = Math.min(window.devicePixelRatio || 1, 2);
-		if (width === this.cssWidth && height === this.cssHeight && dpr === this.dpr) return;
-		this.resetPerformanceSampling();
-		this.cssWidth = width;
-		this.cssHeight = height;
-		this.dpr = dpr;
+		if (width === this.size.width && height === this.size.height && dpr === this.size.dpr) return;
+		this.endDrag();
+		this.size = { width, height, dpr };
 		this.canvas.width = Math.round(width * dpr);
 		this.canvas.height = Math.round(height * dpr);
-		this.endDrag();
-
 		// Higher-resolution pixels retain crisp, non-AA edges on the smaller models.
-		const simulationScale = 320 / Math.max(width, height);
-		const simulationWidth = Math.max(3, Math.round(width * simulationScale));
-		const simulationHeight = Math.max(3, Math.round(height * simulationScale));
-		const resetStatic = this.still && !this.staticComposition;
-		if (this.still) this.time = 0;
-		this.staticComposition = this.still;
-		if (
-			resetStatic ||
-			simulationWidth !== this.fluid.width ||
-			simulationHeight !== this.fluid.height
-		) {
-			this.fluid.resize(simulationWidth, simulationHeight, this.time);
-			this.scene.resize(simulationWidth, simulationHeight, this.time);
-		}
-		this.obstacles = null;
-		this.renderer.resize(simulationWidth, simulationHeight);
-		this.measureObstacles();
-	};
-
-	private draw = () => {
-		if (!this.disposed) {
-			this.renderer.render(this.fluid, this.scene, this.time, this.dpr, this.darkMode.matches);
-		}
+		this.grid = simulationSize(this.size);
+		this.obstacles = this.collectObstacles();
+		this.post({ type: 'resize', size: this.size, obstacles: this.obstacles });
+		this.fallback?.update(this.size, this.obstacles, this.darkMode.matches);
 	};
 
 	private observeContent = () => {
@@ -148,15 +313,15 @@ export class BackgroundController {
 		}
 		this.measureObstacles();
 	};
-	private measureObstacles = () => {
-		if (this.disposed || !this.fluid.width || !this.fluid.height) return;
-		const content = this.frame.parentElement;
-		if (!content) return;
+
+	private collectObstacles(): Obstacle[] {
+		if (!this.grid.width || !this.grid.height || !this.frame.parentElement) return [];
 		const frame = this.frame.getBoundingClientRect();
 		const obstacles: Obstacle[] = [];
-		const cellScale = Math.min(frame.width / this.fluid.width, frame.height / this.fluid.height);
-		const offsetX = (frame.width - this.fluid.width * cellScale) / 2;
-		const offsetY = (frame.height - this.fluid.height * cellScale) / 2;
+		const cellScale = Math.min(frame.width / this.grid.width, frame.height / this.grid.height);
+		if (!cellScale) return obstacles;
+		const offsetX = (frame.width - this.grid.width * cellScale) / 2;
+		const offsetY = (frame.height - this.grid.height * cellScale) / 2;
 		const clearance = 8;
 		for (const element of this.protectedElements) {
 			if (element.parentElement?.closest(PROTECTED_CONTENT)) continue;
@@ -177,21 +342,26 @@ export class BackgroundController {
 			obstacles.push({
 				minX: Math.max(0, (rect.left - frame.left - clearance - offsetX) / cellScale),
 				maxX: Math.min(
-					this.fluid.width,
+					this.grid.width,
 					(rect.right - frame.left + clearance - offsetX) / cellScale
 				),
 				minY: Math.max(0, (frame.bottom - rect.bottom - clearance - offsetY) / cellScale),
 				maxY: Math.min(
-					this.fluid.height,
+					this.grid.height,
 					(frame.bottom - rect.top + clearance - offsetY) / cellScale
 				)
 			});
 		}
+		return obstacles;
+	}
+
+	private measureObstacles = () => {
+		if (this.disposed || !this.grid.width || !this.grid.height) return;
+		const obstacles = this.collectObstacles();
 		if (
-			this.still &&
-			this.obstacles?.length === obstacles.length &&
+			this.obstacles.length === obstacles.length &&
 			obstacles.every((obstacle, i) => {
-				const previous = this.obstacles![i];
+				const previous = this.obstacles[i];
 				return (
 					obstacle.minX === previous.minX &&
 					obstacle.maxX === previous.maxX &&
@@ -202,163 +372,145 @@ export class BackgroundController {
 		)
 			return;
 		this.obstacles = obstacles;
-		this.scene.setObstacles(obstacles);
-		if (this.still) this.scene.renderPreset();
-		else this.scene.update(0, this.time);
-		this.draw();
+		this.post({ type: 'obstacles', obstacles });
+		this.fallback?.update(this.size, obstacles, this.darkMode.matches);
 	};
 
-	private resetPerformanceSampling(): void {
-		this.sampledFrames = 0;
-		this.sampledCpuTime = 0;
-		this.sampleWindowStart = performance.now() + PERFORMANCE_WARMUP_MS;
-	}
-
 	private finishInitialCheck(): void {
-		if (this.initialCheckComplete) return;
+		if (this.disposed || this.initialCheckComplete) return;
 		this.initialCheckComplete = true;
 		this.onPerformanceReady();
 	}
 
-	private syncPlayback = () => {
-		cancelAnimationFrame(this.animation);
-		this.animation = 0;
-		this.lastTime = 0;
-		this.resetPerformanceSampling();
+	private updateInteractivity(): void {
+		const interactive =
+			!this.disposed &&
+			this.worker !== null &&
+			this.workerInteractive &&
+			!this.reducedMotion.matches &&
+			!document.hidden;
+		if (!interactive && this.interactive) this.endDrag();
+		this.interactive = interactive;
+		this.canvas.style.pointerEvents = interactive ? '' : 'none';
+		this.canvas.style.touchAction = interactive ? 'none' : 'auto';
+		this.canvas.style.cursor = interactive ? this.cursor : 'default';
+	}
+
+	private syncEnvironment = () => {
 		if (this.disposed) return;
-		if (this.still) {
-			this.endDrag();
-			if (!this.staticComposition) {
-				this.staticComposition = true;
-				this.time = 0;
-				this.fluid.resize(this.fluid.width, this.fluid.height, this.time);
-				this.scene.renderPreset();
-				this.draw();
-			}
-			this.finishInitialCheck();
-			return;
-		}
-		this.staticComposition = false;
-		if (document.hidden) {
-			this.endDrag();
-			return;
-		}
-		this.animation = requestAnimationFrame(this.tick);
+		const environment: BackgroundEnvironment = {
+			dark: this.darkMode.matches,
+			reduced: this.reducedMotion.matches,
+			visible: !document.hidden
+		};
+		const darkChanged = environment.dark !== this.environment.dark;
+		this.environment = environment;
+		this.updateInteractivity();
+		this.post({ type: 'environment', environment });
+		if (darkChanged) this.fallback?.update(this.size, this.obstacles, environment.dark);
 	};
 
-	private tick = (now: number) => {
-		if (this.disposed) return;
-		if (document.hidden || this.still) {
-			this.syncPlayback();
-			return;
-		}
-		const started = performance.now();
-		if (Math.min(window.devicePixelRatio || 1, 2) !== this.dpr) this.resize();
-		const elapsed = this.lastTime ? Math.min((now - this.lastTime) / 16.6667, 1.7) : 1;
-		this.lastTime = now;
-		this.time += elapsed / 60;
-		this.scene.update(elapsed, this.time);
-		this.fluid.step(elapsed, this.time, this.scene);
-		this.draw();
-		const cpuTime = performance.now() - started;
-		if (started >= this.sampleWindowStart) {
-			this.sampledCpuTime += cpuTime;
-			this.sampledFrames++;
-			if (
-				started - this.sampleWindowStart >= PERFORMANCE_WINDOW_MS &&
-				this.sampledFrames >= PERFORMANCE_MIN_FRAMES
-			) {
-				if (this.sampledCpuTime / this.sampledFrames > FRAME_CPU_BUDGET_MS) {
-					this.performanceFallback = true;
-					this.canvas.style.pointerEvents = 'none';
-					this.canvas.style.touchAction = 'auto';
-					this.syncPlayback();
-					return;
-				}
-				this.sampledFrames = 0;
-				this.sampledCpuTime = 0;
-				this.sampleWindowStart = started;
-				this.finishInitialCheck();
-			}
-		}
-		this.animation = requestAnimationFrame(this.tick);
-	};
-
-	private pointerPosition(event: PointerEvent) {
+	private pointerPosition(event: PointerEvent): void {
 		const bounds = this.canvas.getBoundingClientRect();
-		const cellScale = Math.min(bounds.width / this.fluid.width, bounds.height / this.fluid.height);
-		const offsetX = (bounds.width - this.fluid.width * cellScale) / 2;
-		const offsetY = (bounds.height - this.fluid.height * cellScale) / 2;
-		this.pointerX = clamp((event.clientX - bounds.left - offsetX) / cellScale, 0, this.fluid.width);
+		const cellScale = Math.min(bounds.width / this.grid.width, bounds.height / this.grid.height);
+		const offsetX = (bounds.width - this.grid.width * cellScale) / 2;
+		const offsetY = (bounds.height - this.grid.height * cellScale) / 2;
+		this.pointerX = clamp((event.clientX - bounds.left - offsetX) / cellScale, 0, this.grid.width);
 		this.pointerY = clamp(
 			(bounds.bottom - event.clientY - offsetY) / cellScale,
 			0,
-			this.fluid.height
+			this.grid.height
 		);
 	}
 
-	private interact(event: PointerEvent) {
-		const x = clamp(this.pointerX, 1, this.fluid.width - 2);
-		const y = clamp(this.pointerY, 1, this.fluid.height - 2);
-		if (this.hasPrevious) {
-			this.fluid.interact(x, y, x - this.previousX, y - this.previousY, event.buttons !== 0);
-		}
-		this.previousX = x;
-		this.previousY = y;
-		this.hasPrevious = true;
-	}
+	private flushPointerMove = () => {
+		if (this.moveAnimation) cancelAnimationFrame(this.moveAnimation);
+		this.moveAnimation = 0;
+		const command = this.pendingMove;
+		this.pendingMove = null;
+		if (command) this.post(command);
+	};
 
 	private pointerMove = (event: PointerEvent) => {
-		if (this.still) return;
-		if (this.scene.drag.body) {
-			if (event.pointerId === this.pointerId) {
-				this.pointerPosition(event);
-				this.scene.moveDrag(this.pointerX, this.pointerY);
-			}
+		if (!this.interactive || (this.pointerId !== null && event.pointerId !== this.pointerId))
 			return;
-		}
 		this.pointerPosition(event);
-		this.canvas.style.cursor = this.scene.pickBody(this.pointerX, this.pointerY)
-			? 'grab'
-			: 'default';
-		this.interact(event);
+		this.pendingMove = {
+			type: 'pointer',
+			action: 'move',
+			x: this.pointerX,
+			y: this.pointerY,
+			pressed: event.buttons !== 0
+		};
+		if (!this.moveAnimation) this.moveAnimation = requestAnimationFrame(this.flushPointerMove);
 	};
 
 	private pointerDown = (event: PointerEvent) => {
-		if (this.still || !event.isPrimary || event.button !== 0 || this.pointerId !== null) return;
+		if (!this.interactive || !event.isPrimary || event.button !== 0 || this.pointerId !== null)
+			return;
+		this.flushPointerMove();
 		this.pointerPosition(event);
 		this.pointerId = event.pointerId;
 		this.canvas.setPointerCapture(event.pointerId);
-		this.hasPrevious = false;
-		if (this.scene.beginDrag(this.pointerX, this.pointerY)) {
-			this.canvas.style.cursor = 'grabbing';
-		} else {
-			this.interact(event);
-		}
+		this.post({
+			type: 'pointer',
+			action: 'down',
+			x: this.pointerX,
+			y: this.pointerY,
+			pressed: event.buttons !== 0
+		});
 	};
 
 	private endDrag = (event?: PointerEvent) => {
 		if (event && this.pointerId !== null && event.pointerId !== this.pointerId) return;
+		this.flushPointerMove();
 		const id = this.pointerId;
 		this.pointerId = null;
-		this.scene.endDrag();
-		this.hasPrevious = false;
+		if (id !== null) {
+			this.post({
+				type: 'pointer',
+				action: 'up',
+				x: this.pointerX,
+				y: this.pointerY,
+				pressed: false
+			});
+		}
+		this.cursor = 'default';
 		this.canvas.style.cursor = 'default';
 		if (id !== null && this.canvas.hasPointerCapture(id)) this.canvas.releasePointerCapture(id);
 	};
 
-	private pointerLeave = () => {
-		if (!this.scene.drag.body) this.hasPrevious = false;
+	private pointerLeave = (event: PointerEvent) => {
+		if (!this.interactive) return;
+		this.flushPointerMove();
+		this.post({
+			type: 'pointer',
+			action: 'leave',
+			x: this.pointerX,
+			y: this.pointerY,
+			pressed: event.buttons !== 0
+		});
 	};
 
-	destroy() {
+	destroy(): void {
+		if (this.disposed) return;
 		this.disposed = true;
-		cancelAnimationFrame(this.animation);
 		this.listeners.abort();
 		this.observer.disconnect();
 		this.contentObserver.disconnect();
 		this.mutations.disconnect();
 		this.endDrag();
-		this.renderer.destroy();
+		this.stopWorker();
+		this.bitmap?.close();
+		this.bitmap = null;
+		if (this.fallbackTask !== null) {
+			if (this.fallbackTaskIsIdle) window.cancelIdleCallback(this.fallbackTask);
+			else window.clearTimeout(this.fallbackTask);
+			this.fallbackTask = null;
+		}
+		this.fallback?.destroy();
+		this.fallback = null;
+		this.bitmapContext = null;
+		this.drawingContext = null;
 	}
 }
