@@ -1,4 +1,5 @@
 <script>
+	import { resolve } from '$app/paths';
 	import { fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 </script>
@@ -7,13 +8,12 @@
 	<div class="justify-center flex flex-col items-center m-auto shrink overflow-hidden h-screen">
 		<div
 			in:fly={{ delay: 300, duration: 300, x: 50, easing: quintOut }}
-			animate="true"
 			out:fly={{ duration: 300, x: -50, easing: quintOut }}
 		>
 			<h1 class="text-black dark:text-white text-4xl">Donate</h1>
 			<p class="text-black dark:text-white" style="">Thanks a lot!</p>
 
-			<a href="/">
+			<a href={resolve('/')} aria-label="Go home">
 				<div
 					class="flex place-content-center place-self-center justify-center content-center flex-row"
 				>
@@ -38,7 +38,7 @@
 					<p class="text-2xl pl-2">GitHub Sponsors</p>
 				</div>
 			</a>
-			<a href="/donate/monero">
+			<a href={resolve('/donate/monero')}>
 				<div
 					class="flex flex-row md:dark:hover:bg-white p-1 md:dark:hover:text-black md:hover:bg-gray-400 rounded"
 				>

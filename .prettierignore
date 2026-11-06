@@ -7,7 +7,8 @@ node_modules
 .env.*
 !.env.example
 
-# Ignore files for PNPM, NPM and YARN
+# Keep the generated dependency lockfile untouched.
 pnpm-lock.yaml
-package-lock.json
-yarn.lock
+
+# Exported mesh data stays compact and separate from the implementation.
+src/lib/background/niko-model.json

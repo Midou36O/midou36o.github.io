@@ -1,10 +1,17 @@
-export type Categories = 'sveltekit' | 'svelte';
+import type { Component } from 'svelte';
 
-export type Post = {
+export type PostMetadata = {
 	title: string;
-	slug: string;
+	author: string;
 	description: string;
 	date: string;
-	categories: Categories[];
+	categories: string[];
 	published: boolean;
+};
+
+export type Post = PostMetadata & { slug: string };
+
+export type MarkdownPost = {
+	default: Component;
+	metadata: PostMetadata;
 };

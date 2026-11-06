@@ -1,5 +1,3 @@
-@import url(https://fonts.bunny.net/css?family=outfit);
-
 :root {
 	--purple-color: #7a00ec;
 	--brighter-purple-color: #9d41f3;
@@ -7,7 +5,7 @@
 }
 
 html {
-	font-family: 'outfit', 'Comic Sans MS', cursive, sans-serif !important;
+	font-family: 'Outfit Variable', 'Comic Sans MS', cursive, sans-serif !important;
 	height: 100%;
 	overflow-x: hidden;
 	scroll-behavior: smooth;
@@ -40,10 +38,6 @@ html {
 .h1dance {
 	margin-top: 0;
 	margin: 0;
-}
-
-.bg {
-	background-image: url(/Images/BG_FHD_darker_mb.png);
 }
 
 body {

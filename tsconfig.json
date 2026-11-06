@@ -1,5 +1,7 @@
 {
-	"extends": "./.svelte-kit/tsconfig.json",
+	"extends": "$app/tsconfig",
+	"include": ["src", "*.ts", "*.js"],
+	"exclude": ["node_modules", "build", ".svelte-kit"],
 	"compilerOptions": {
 		"allowJs": true,
 		"checkJs": true,
@@ -10,6 +12,7 @@
 		"sourceMap": true,
 		"strict": true
 	}
+	// Kit 3 uses package.json imports for #lib. The earlier alias notes are kept below.
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	//
 	// If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes

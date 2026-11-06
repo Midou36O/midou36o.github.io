@@ -1,9 +1,10 @@
 <script>
+	import { resolve } from '$app/paths';
 	import { fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 </script>
 
-<body
+<div
 	class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans md:py-0 py-10%"
 	id="content"
 >
@@ -21,14 +22,14 @@
 					<div class="flex flex-col md:flex-row">
 						<div
 							class="i-gridicons-info dark:text-white place-content-center place-self-center justify-center content-center text-center pl-0 md:pl-3 text-black text-5xl"
-						/>
+						></div>
 						<h1 class="text-black dark:text-white text-4xl md:pr-2">About me</h1>
 					</div>
-					<a href="/">
+					<a href={resolve('/')} aria-label="Go home">
 						<div
 							class="flex place-content-center place-self-center justify-center content-center flex-row md:pl-25%"
 						>
-							<div class="i-ep-back text-4xl md:text-2xl my-auto mr-0 md:mr-1" />
+							<div class="i-ep-back text-4xl md:text-2xl my-auto mr-0 md:mr-1"></div>
 							<p class="md:block hidden">Go back?</p>
 						</div>
 					</a>
@@ -38,7 +39,7 @@
 					in:fly={{ delay: 300, duration: 300, y: 0, easing: quintOut }}
 					out:fly={{ duration: 300, y: 0, easing: quintOut }}
 					class="md:h-1/2 md:w-1 w-3/4 border-1 bg-black border-black dark:bg-white dark:border-white rounded-md"
-				/>
+				></div>
 				<!-- Secondary Content (Right) -->
 				<div
 					in:fly={{ delay: 300, duration: 300, y: -50, easing: quintOut }}
@@ -58,7 +59,7 @@
 							I do hate JS though, but svelte is making it bearable.<br />
 							This is just a brief summary of who I am, And I hope you enjoy your (rather short) stay
 							on my website.<br />
-							Oh, just in case, I'm a guy, and I'm 21 years old. You don't need to know more than that.<br
+							Oh, just in case, I'm a guy, and I'm in my twenties. You don't need to know more than that.<br
 							/>
 							Finally, feel free to contact me! I love receiving mails and messages from people, and I'll
 							try to respond as soon as possible.<br />
@@ -71,4 +72,4 @@
 			</div>
 		</div>
 	</div>
-</body>
+</div>

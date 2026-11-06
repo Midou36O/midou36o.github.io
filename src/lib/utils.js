@@ -1,4 +1,6 @@
+/** @param {string} published */
 export const convertDate = (published) => {
+	/** @type {Record<number, string>} */
 	const months = {
 		1: 'Jan',
 		2: 'Feb',

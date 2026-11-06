@@ -1,7 +1,10 @@
-import type { Post } from '$lib/types';
+import type { Post } from '#lib/types.ts';
+import type { RequestHandler } from './$types';
 
-export async function GET({ fetch }) {
-	const response = await fetch('api/posts');
+export const prerender = true;
+
+export const GET: RequestHandler = async ({ fetch }) => {
+	const response = await fetch('/api/posts');
 	const posts: Post[] = await response.json();
 
 	const headers = { 'Content-Type': 'application/xml' };
@@ -31,4 +34,4 @@ export async function GET({ fetch }) {
 	`.trim();
 
 	return new Response(xml, { headers });
-}
+};

@@ -1,92 +1,249 @@
 <script lang="ts">
-	import { convertDate } from '$lib/utils';
-	import { fly } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
-	import 'github-markdown-css/github-markdown.css';
+	import { resolve } from '$app/paths';
+	import { convertDate } from '#lib/utils.js';
 
-	export let data;
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+	let published = $derived(
+		data.meta.date
+			.split('-')
+			.map((part) => part.padStart(2, '0'))
+			.join('-')
+	);
 </script>
 
 <!-- SEO -->
 <svelte:head>
 	<title>{data.meta.title}</title>
+	<meta name="description" content={data.meta.description} />
 	<meta property="og:type" content="article" />
 	<meta property="og:title" content={data.meta.title} />
 </svelte:head>
 
-<article>
-	<div class="min-h-screen">
-		<!-- Primary content (Left) -->
-		<div class="text-center">
-			<div
-				class="md:justify-start justify-center flex md:flex-row flex-col items-center md:item-start m-auto shrink pt-3 md:pt-0 overflow-hidden h-screen"
-			>
-				<div
-					in:fly={{ delay: 300, duration: 300, y: 50, easing: quintOut }}
-					out:fly={{ duration: 300, y: -50, easing: quintOut }}
-					class="flex flex-col md:mx-7 pr-3 md:w-60"
-				>
-					<div class="flex flex-col md:flex-col">
-						<div
-							class="i-ph-book-bold dark:text-white place-self-center md:place-self-start pl-0 md:pl-3 text-black text-5xl"
-						/>
-						<h1
-							class="text-black dark:text-white md:break-normal md:w-60 text-center md:text-left font-bold text-4xl"
-						>
-							{data.meta.title}
-						</h1>
-					</div>
+<article class="reader" aria-labelledby="post-title">
+	<!-- Primary content (Left) -->
+	<header class="post-header">
+		<span class="i-ph-book-bold post-icon" aria-hidden="true"></span>
+		<h1 id="post-title">{data.meta.title}</h1>
+		<div class="post-meta">
+			<time datetime={published}>{convertDate(data.meta.date)}</time>
+		</div>
+		{#if data.meta.categories.length}
+			<p class="tags-label">Tags:</p>
+			<ul class="post-tags" aria-label="Tags">
+				{#each data.meta.categories as category (category)}
+					<li>&num;{category}</li>
+				{/each}
+			</ul>
+		{/if}
+		<nav class="reader-navigation" aria-label="Blog navigation">
+			<a href={resolve('/blog')} aria-label="Go back to blog" data-sveltekit-preload-code>
+				<span class="i-ep-back" aria-hidden="true"></span>
+				Go back?
+			</a>
+		</nav>
+	</header>
 
-					<p class="block text-gray-600 dark:text-gray-500 text-center md:text-start py-1">
-						{convertDate(data.meta.date)}
-					</p>
-					<p class="inline text-gray-600 dark:text-gray-500 py-1 text-center md:text-start">
-						Tags:
-					</p>
-					<div class="pl-2 inline text-gray-600 dark:text-gray-500 py-1 text-cetner md:text-start">
-						{#each data.meta.categories as category}
-							<span class="surface-4"> &num;{category} </span>
-						{/each}
-					</div>
+	<!-- Vertical line -->
+	<div class="post-divider" aria-hidden="true"></div>
 
-					<a href="/blog" data-sveltekit-preload-code>
-						<div class="flex justify-center content-center md:justify-end md:content-end flex-row">
-							<div class="i-ep-back text-4xl md:text-2xl my-auto mr-0 md:mr-1" />
-							<p class="md:block hidden">Go back?</p>
-						</div>
-					</a>
-				</div>
-				<!-- Vertical line -->
-				<div
-					in:fly={{ delay: 300, duration: 300, y: 0, easing: quintOut }}
-					out:fly={{ duration: 300, y: 0, easing: quintOut }}
-					class="md:h-100% md:w-1 w-3/4 border-1 bg-black border-black dark:bg-white dark:border-white rounded-md"
-				/>
-				<!-- Secondary Content (Right) -->
-				<div
-					in:fly={{ delay: 400, duration: 300, y: -50, easing: quintOut }}
-					out:fly={{ duration: 300, y: 50, easing: quintOut }}
-					class="justify-center md:min-w-50% md:max-w-50% h-50% flex flex-col items-center md:m-auto md:m-5 shrink overflow-hidden h-screen"
-				>
-					<div
-						class="text-xl md:justify-center text-start overflow-scroll md:text-left text-black dark:text-white"
-					>
-						<div class="prose" />
-						<svelte:component this={data.content} />
-					</div>
-				</div>
-			</div>
+	<!-- Secondary Content (Right) -->
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex (The scrollable article needs keyboard access) -->
+	<div class="post-content" role="region" aria-label="Article content" tabindex="0">
+		<div class="article-body">
+			<div id="article-start" tabindex="-1"></div>
+			<data.content />
+			<footer class="reader-navigation post-footer" aria-label="Article navigation">
+				<a href={resolve('/blog')} aria-label="Go back to blog">
+					<span class="i-ep-back" aria-hidden="true"></span>
+					Go back?
+				</a>
+				<a href="#article-start">Back to top <span aria-hidden="true">↑</span></a>
+			</footer>
 		</div>
 	</div>
 </article>
 
 <style>
-	article {
-		max-inline-size: var(--size-content-3);
+	.reader {
+		--reader-text: #374151;
+		--reader-heading: #000;
+		--reader-muted: #4b5563;
+		--reader-border: #9ca3af;
+		--reader-link: #3b82f6;
+		--reader-code-background: #282a36;
+		display: grid;
+		grid-template-columns: minmax(13rem, 17rem) 2px minmax(0, 1fr);
+		column-gap: clamp(1.5rem, 3.5vw, 3.25rem);
+		width: min(100% - 3rem, 80rem);
+		height: 100dvh;
 		margin-inline: auto;
+		padding-block: clamp(1.25rem, 4vh, 3rem);
+		color: var(--reader-text);
+		overflow-wrap: anywhere;
+	}
+
+	.post-header {
+		align-self: center;
+		min-height: 0;
+		max-height: 100%;
+		overflow-y: auto;
+		padding: 0.25rem;
+		scrollbar-color: var(--reader-border) transparent;
+		scrollbar-width: thin;
+	}
+
+	.post-icon {
+		display: block;
+		margin-bottom: 1rem;
+		color: var(--reader-heading);
+		font-size: 2.75rem;
 	}
 
 	h1 {
-		text-transform: capitalize;
+		margin: 0;
+		color: var(--reader-heading);
+		font-size: clamp(1.875rem, 2.7vw, 2.5rem);
+		font-weight: 800;
+		line-height: 1.15;
+		letter-spacing: -0.025em;
+		text-wrap: balance;
+	}
+
+	.post-meta {
+		margin-top: 1rem;
+		color: var(--reader-muted);
+		font-size: 0.875rem;
+	}
+
+	.tags-label {
+		margin-top: 1.25rem;
+		color: var(--reader-muted);
+		font-size: 0.875rem;
+	}
+
+	.post-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem 0.75rem;
+		margin-top: 0.375rem;
+		padding: 0;
+		list-style: none;
+		color: var(--reader-muted);
+		font-size: 0.875rem;
+		line-height: 1.6;
+	}
+
+	.reader-navigation {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		font-size: 0.9375rem;
+		line-height: 1.5;
+	}
+
+	.post-header .reader-navigation {
+		margin-top: 1.5rem;
+	}
+
+	.reader-navigation a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding-block: 0.5rem;
+		text-underline-offset: 0.25em;
+	}
+
+	.reader-navigation a:hover {
+		text-decoration: underline;
+	}
+
+	.reader-navigation a:focus-visible,
+	.post-content:focus-visible {
+		outline: 2px solid currentColor;
+		outline-offset: 4px;
+		border-radius: 0.125rem;
+	}
+
+	.post-divider {
+		background: var(--reader-heading);
+		border-radius: 999px;
+	}
+
+	.post-content {
+		min-width: 0;
+		min-height: 0;
+		overflow-y: auto;
+		overscroll-behavior-y: contain;
+		scrollbar-color: var(--reader-border) transparent;
+		scrollbar-gutter: stable;
+		scrollbar-width: thin;
+		pointer-events: auto;
+	}
+
+	.article-body {
+		width: min(100%, 44rem);
+		margin-inline: auto;
+		padding: 0.5rem 1.25rem 1.5rem 0.25rem;
+		font-size: clamp(1.0625rem, 0.98rem + 0.3vw, 1.1875rem);
+		line-height: 1.8;
+		scroll-margin-top: 0.5rem;
+	}
+
+	.post-footer {
+		margin-top: 3rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--reader-border);
+	}
+
+	@container blog-reading (max-width: 720px) {
+		.reader {
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-rows: auto 2px minmax(0, 1fr);
+			row-gap: 1rem;
+			width: calc(100% - 2rem);
+			padding-block: 1rem;
+		}
+
+		.post-header {
+			max-height: 38dvh;
+		}
+
+		.post-icon {
+			display: none;
+		}
+
+		h1 {
+			font-size: clamp(1.5rem, 5.5vw, 1.875rem);
+			text-wrap: pretty;
+		}
+
+		.post-meta,
+		.tags-label {
+			margin-top: 0.5rem;
+		}
+
+		.tags-label {
+			display: none;
+		}
+
+		.post-header .reader-navigation {
+			margin-top: 0.5rem;
+		}
+
+		.article-body {
+			padding-right: 0.75rem;
+		}
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.reader {
+			--reader-text: #d1d5db;
+			--reader-heading: #fff;
+			--reader-muted: #6b7280;
+			--reader-border: #374151;
+		}
 	}
 </style>

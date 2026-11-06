@@ -1,0 +1,3 @@
+# ESLint and typescript-eslint still request a vulnerable minimatch release.
+overrides:
+  'minimatch@>=7 <11.0.1': '^11.0.4'

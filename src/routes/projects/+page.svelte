@@ -1,10 +1,12 @@
-<script>
-	import proj from '$lib/project.json';
+<script lang="ts">
+	import { resolve } from '$app/paths';
+	import type { Path } from '$app/types';
+	import proj from '#lib/project.json';
 	import { fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 </script>
 
-<body class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans md:px-10%" id="content">
+<div class="text-black dark:text-white dark:bg-black bg-gray-300 font-sans md:px-10%" id="content">
 	<div class="min-h-screen">
 		<!-- Primary content (Left) -->
 		<div class="text-center">
@@ -19,14 +21,14 @@
 					<div class="flex flex-col md:flex-row">
 						<div
 							class="i-octicon-project-16 dark:text-white place-content-center place-self-center justify-center content-center text-center pl-0 md:pl-3 text-black text-5xl"
-						/>
+						></div>
 						<h1 class="text-black dark:text-white text-4xl md:pl-2 md:pr-2">Projects</h1>
 					</div>
-					<a href="/">
+					<a href={resolve('/')} aria-label="Go home">
 						<div
 							class="flex place-content-center place-self-center justify-center content-center flex-row md:pl-25%"
 						>
-							<div class="i-ep-back text-4xl md:text-2xl my-auto mr-0 md:mr-1" />
+							<div class="i-ep-back text-4xl md:text-2xl my-auto mr-0 md:mr-1"></div>
 							<p class="md:block hidden">Go back?</p>
 						</div>
 					</a>
@@ -37,7 +39,7 @@
 					in:fly={{ delay: 300, duration: 300, y: 0, easing: quintOut }}
 					out:fly={{ duration: 300, y: 0, easing: quintOut }}
 					class="md:h-1/2 md:w-1 w-3/4 border-1 bg-black border-black dark:bg-white dark:border-white rounded-md"
-				/>
+				></div>
 				<!-- Secondary Content (Right) -->
 				<div
 					in:fly={{ delay: 300, duration: 300, y: -50, easing: quintOut }}
@@ -45,8 +47,9 @@
 					class="md:pl-4 md:gap-1 flex md:h-50% flex-col place-items-start"
 				>
 					<div class="overflow-y-auto">
-						{#each proj as { name, date, desc, url, image, imdes }, i}
-							<a href={url}>
+						{#each proj as { name, date, desc, url, image, imdes }, i (url)}
+							<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- External URLs come from checked-in project JSON. Internal paths are resolved below. -->
+							<a href={url.startsWith('/') ? resolve(url.slice(1) as Path) : url}>
 								<!-- Gotta fix this, it's gonna look ugly when there are too many projects in the list... -->
 								<div
 									in:fly={{ delay: 350, duration: 300 * i, y: -50, easing: quintOut }}
@@ -88,5 +91,5 @@
 				</div>
 			</div>
 		</div>
-	</div></body
->
+	</div>
+</div>

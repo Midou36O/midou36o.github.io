@@ -4,8 +4,7 @@ import {
 	presetTypography,
 	transformerVariantGroup,
 	transformerDirectives,
-	presetWind,
-	presetWebFonts
+	presetWind3
 } from 'unocss';
 
 import extractorSvelte from '@unocss/extractor-svelte';
@@ -22,22 +21,17 @@ export default defineConfig({
 				}
 			}
 		}),
-		presetWind({
+		presetWind3({
 			dark: 'media'
 			/* use dark: "class"  when adding manual JS*/
-		}),
-		presetWebFonts({
-			provider: 'bunny',
-			fonts: {
-				sans: ['Outfit', 'Comic Sans MS'],
-				mono: ['Fira Code']
-			}
 		})
 	],
 
 	theme: {
 		fontFamily: {
-			primary: ['var(--font-primary)']
+			primary: ['var(--font-primary)'],
+			sans: ['Outfit Variable', 'Comic Sans MS', 'sans-serif'],
+			mono: ['Fira Code Variable', 'monospace']
 		},
 		margin: {
 			'0-auto': '0 auto'
@@ -63,7 +57,5 @@ export default defineConfig({
 		}
 	},
 
-	transformers: [transformerVariantGroup(), transformerDirectives()],
-
-	safelist: ['i-ic:outline-dark-mode', 'i-ic:outline-light-mode']
+	transformers: [transformerVariantGroup(), transformerDirectives()]
 });

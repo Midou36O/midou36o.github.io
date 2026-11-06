@@ -1,15 +1,18 @@
-import { error } from '@sveltejs/kit'
+import { error } from '@sveltejs/kit';
+import type { MarkdownPost } from '#lib/types.ts';
+import type { PageLoad } from './$types';
 
-export async function load({ params }) {
-	try {
-		const post = await import(`../posts/mds/${params.slug}.md`)
+const posts = import.meta.glob<MarkdownPost>('../posts/mds/*.md');
 
-		return {
-			content: post.default,
-			meta: post.metadata
-		}
-	} catch (e) {
-		throw error(404, `Could not find ${params.slug}`)
+export const load = (async ({ params }) => {
+	const loadPost = posts[`../posts/mds/${params.slug}.md`];
+	if (!loadPost) {
+		error(404, `Could not find ${params.slug}`);
 	}
-}
 
+	const post = await loadPost();
+	return {
+		content: post.default,
+		meta: post.metadata
+	};
+}) satisfies PageLoad;

@@ -1,0 +1,13 @@
+.git
+.gitea
+.vscode
+.DS_Store
+node_modules
+.svelte-kit
+build
+package
+.pnpm-store
+.env
+.env.*
+!.env.example
+*.log
