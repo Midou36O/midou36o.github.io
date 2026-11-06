@@ -5,14 +5,29 @@
 	let { reading = false }: { reading?: boolean } = $props();
 	let frame: HTMLDivElement;
 	let canvas: HTMLCanvasElement;
+	let ready = $state(false);
+	let checked = $state(false);
+	let revealDelay = $state(4000);
 
 	onMount(() => {
-		const controller = new BackgroundController(canvas, frame);
+		const revealAt = performance.now() + 4000;
+		const controller = new BackgroundController(canvas, frame, () => {
+			revealDelay = Math.max(0, revealAt - performance.now());
+			checked = true;
+		});
+		ready = true;
 		return () => controller.destroy();
 	});
 </script>
 
-<div class="scene-background bg-gray-300 dark:bg-black" class:reading bind:this={frame}>
+<div
+	class="scene-background bg-gray-300 dark:bg-black"
+	class:reading
+	class:ready
+	class:checked
+	style:--background-reveal-delay={`${revealDelay}ms`}
+	bind:this={frame}
+>
 	<canvas bind:this={canvas} aria-hidden="true"></canvas>
 </div>
 
@@ -49,6 +64,21 @@
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
+		.ready.checked canvas {
+			animation: background-reveal 900ms ease var(--background-reveal-delay) both;
+		}
+
+		@keyframes background-reveal {
+			from {
+				opacity: 0;
+				visibility: hidden;
+			}
+			to {
+				opacity: 1;
+				visibility: visible;
+			}
+		}
+
 		.scene-background {
 			transition:
 				width 650ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -95,6 +125,11 @@
 			cursor: default;
 			touch-action: auto;
 		}
+
+		.ready canvas {
+			opacity: 1;
+			visibility: visible;
+		}
 	}
 
 	canvas {
@@ -103,5 +138,12 @@
 		height: 100%;
 		touch-action: none;
 		cursor: default;
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.ready.checked canvas {
+		opacity: 1;
+		visibility: visible;
 	}
 </style>

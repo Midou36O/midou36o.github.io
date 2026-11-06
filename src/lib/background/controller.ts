@@ -7,8 +7,10 @@ const clamp = (value: number, min: number, max: number) => Math.max(min, Math.mi
 
 const PROTECTED_CONTENT = 'a, button, h1, h2, h3, h4, h5, h6, p, pre, blockquote, table, img';
 
-const FRAME_CPU_BUDGET_MS = 1000 / 60;
-const PERFORMANCE_SAMPLE_FRAMES = 8;
+const FRAME_CPU_BUDGET_MS = 50;
+const PERFORMANCE_WARMUP_MS = 1000;
+const PERFORMANCE_WINDOW_MS = 2000;
+const PERFORMANCE_MIN_FRAMES = 8;
 
 export class BackgroundController {
 	private readonly fluid = new FluidField();
@@ -18,6 +20,8 @@ export class BackgroundController {
 	private performanceFallback = false;
 	private sampledFrames = 0;
 	private sampledCpuTime = 0;
+	private sampleWindowStart = 0;
+	private initialCheckComplete = false;
 
 	private get still(): boolean {
 		return this.softwareFallback || this.performanceFallback || this.reducedMotion.matches;
@@ -47,7 +51,8 @@ export class BackgroundController {
 
 	constructor(
 		private readonly canvas: HTMLCanvasElement,
-		private readonly frame: HTMLElement
+		private readonly frame: HTMLElement,
+		private readonly onPerformanceReady: () => void
 	) {
 		const result = createRenderer(canvas);
 		this.renderer = result.renderer;
@@ -97,6 +102,7 @@ export class BackgroundController {
 		const height = Math.max(1, Math.round(bounds.height));
 		const dpr = Math.min(window.devicePixelRatio || 1, 2);
 		if (width === this.cssWidth && height === this.cssHeight && dpr === this.dpr) return;
+		this.resetPerformanceSampling();
 		this.cssWidth = width;
 		this.cssHeight = height;
 		this.dpr = dpr;
@@ -202,12 +208,23 @@ export class BackgroundController {
 		this.draw();
 	};
 
+	private resetPerformanceSampling(): void {
+		this.sampledFrames = 0;
+		this.sampledCpuTime = 0;
+		this.sampleWindowStart = performance.now() + PERFORMANCE_WARMUP_MS;
+	}
+
+	private finishInitialCheck(): void {
+		if (this.initialCheckComplete) return;
+		this.initialCheckComplete = true;
+		this.onPerformanceReady();
+	}
+
 	private syncPlayback = () => {
 		cancelAnimationFrame(this.animation);
 		this.animation = 0;
 		this.lastTime = 0;
-		this.sampledFrames = 0;
-		this.sampledCpuTime = 0;
+		this.resetPerformanceSampling();
 		if (this.disposed) return;
 		if (this.still) {
 			this.endDrag();
@@ -218,6 +235,7 @@ export class BackgroundController {
 				this.scene.renderPreset();
 				this.draw();
 			}
+			this.finishInitialCheck();
 			return;
 		}
 		this.staticComposition = false;
@@ -242,18 +260,26 @@ export class BackgroundController {
 		this.scene.update(elapsed, this.time);
 		this.fluid.step(elapsed, this.time, this.scene);
 		this.draw();
-		this.sampledCpuTime += performance.now() - started;
-		this.sampledFrames++;
-		if (this.sampledFrames === PERFORMANCE_SAMPLE_FRAMES) {
-			if (this.sampledCpuTime > FRAME_CPU_BUDGET_MS * PERFORMANCE_SAMPLE_FRAMES) {
-				this.performanceFallback = true;
-				this.canvas.style.pointerEvents = 'none';
-				this.canvas.style.touchAction = 'auto';
-				this.syncPlayback();
-				return;
+		const cpuTime = performance.now() - started;
+		if (started >= this.sampleWindowStart) {
+			this.sampledCpuTime += cpuTime;
+			this.sampledFrames++;
+			if (
+				started - this.sampleWindowStart >= PERFORMANCE_WINDOW_MS &&
+				this.sampledFrames >= PERFORMANCE_MIN_FRAMES
+			) {
+				if (this.sampledCpuTime / this.sampledFrames > FRAME_CPU_BUDGET_MS) {
+					this.performanceFallback = true;
+					this.canvas.style.pointerEvents = 'none';
+					this.canvas.style.touchAction = 'auto';
+					this.syncPlayback();
+					return;
+				}
+				this.sampledFrames = 0;
+				this.sampledCpuTime = 0;
+				this.sampleWindowStart = started;
+				this.finishInitialCheck();
 			}
-			this.sampledFrames = 0;
-			this.sampledCpuTime = 0;
 		}
 		this.animation = requestAnimationFrame(this.tick);
 	};
