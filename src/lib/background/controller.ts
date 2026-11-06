@@ -7,14 +7,20 @@ const clamp = (value: number, min: number, max: number) => Math.max(min, Math.mi
 
 const PROTECTED_CONTENT = 'a, button, h1, h2, h3, h4, h5, h6, p, pre, blockquote, table, img';
 
+const FRAME_CPU_BUDGET_MS = 1000 / 60;
+const PERFORMANCE_SAMPLE_FRAMES = 8;
+
 export class BackgroundController {
 	private readonly fluid = new FluidField();
 	private readonly scene = new SolidScene();
 	private readonly renderer;
 	private readonly softwareFallback: boolean;
+	private performanceFallback = false;
+	private sampledFrames = 0;
+	private sampledCpuTime = 0;
 
 	private get still(): boolean {
-		return this.softwareFallback || this.reducedMotion.matches;
+		return this.softwareFallback || this.performanceFallback || this.reducedMotion.matches;
 	}
 	private readonly listeners = new AbortController();
 	private readonly observer: ResizeObserver;
@@ -200,6 +206,8 @@ export class BackgroundController {
 		cancelAnimationFrame(this.animation);
 		this.animation = 0;
 		this.lastTime = 0;
+		this.sampledFrames = 0;
+		this.sampledCpuTime = 0;
 		if (this.disposed) return;
 		if (this.still) {
 			this.endDrag();
@@ -226,6 +234,7 @@ export class BackgroundController {
 			this.syncPlayback();
 			return;
 		}
+		const started = performance.now();
 		if (Math.min(window.devicePixelRatio || 1, 2) !== this.dpr) this.resize();
 		const elapsed = this.lastTime ? Math.min((now - this.lastTime) / 16.6667, 1.7) : 1;
 		this.lastTime = now;
@@ -233,6 +242,19 @@ export class BackgroundController {
 		this.scene.update(elapsed, this.time);
 		this.fluid.step(elapsed, this.time, this.scene);
 		this.draw();
+		this.sampledCpuTime += performance.now() - started;
+		this.sampledFrames++;
+		if (this.sampledFrames === PERFORMANCE_SAMPLE_FRAMES) {
+			if (this.sampledCpuTime > FRAME_CPU_BUDGET_MS * PERFORMANCE_SAMPLE_FRAMES) {
+				this.performanceFallback = true;
+				this.canvas.style.pointerEvents = 'none';
+				this.canvas.style.touchAction = 'auto';
+				this.syncPlayback();
+				return;
+			}
+			this.sampledFrames = 0;
+			this.sampledCpuTime = 0;
+		}
 		this.animation = requestAnimationFrame(this.tick);
 	};
 

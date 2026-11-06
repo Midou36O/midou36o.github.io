@@ -55,3 +55,9 @@ If WebGL2 is unavailable or fails during initialization, Canvas 2D renders a fix
 preset at the current viewport size and pixel density. It preserves model proportions
 at custom resolutions, with no animation frames, physics stepping, or dragging.
 Layout, content-boundary, and theme changes redraw the still image as needed.
+
+The animated scene measures its own CPU work in batches of eight frames. If a batch
+averages more than 16.7ms per frame, it switches to the fixed preset for that scene's
+lifetime, retaining WebGL when available. This handles costly interpreter-only
+execution without attempting to detect or bypass the browser's JIT policy. Dragging
+and animation stop, while resize and theme changes can still redraw the preset.
